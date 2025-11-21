@@ -389,9 +389,9 @@ export default function Islam_App() {
     }
   }
 
-  async function displayPrayerPage() {
+  async function displayPrayerChecklistPage() {
     try {
-      handleMenuItemPress("namaz", true);
+      handleMenuItemPress("namaz_takip", true);
     } catch (error) {
       if (DEBUG) console.log("Display error:", error);
     }
@@ -1289,7 +1289,7 @@ export default function Islam_App() {
             <Image source={require("./assets/icons/iconPack/shuffle_3.png")} style={styles.bottomIcon} resizeMode="contain" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={displayPrayerPage} style={styles.bottomIconWrapper}>
+          <TouchableOpacity onPress={displayPrayerChecklistPage} style={styles.bottomIconWrapper}>
             <Image source={require("./assets/icons/iconPack/namazTR.png")} style={styles.bottomIcon} resizeMode="contain" />
           </TouchableOpacity>
         </View>
@@ -1451,12 +1451,11 @@ export default function Islam_App() {
     bottomBar: {
       flexDirection: "row",
       alignItems: "center",
-      paddingHorizontal: 16,
+      paddingHorizontal: 0,
       paddingVertical: 10,
       backgroundColor: "rgba(0,0,0,0.4)",
       position: "relative",
     },
-
     bottomSide: {
       flex: 1,
       alignItems: "center",
