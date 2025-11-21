@@ -387,6 +387,14 @@ export default function Islam_App() {
     }
   }
 
+  async function displayPrayerPage() {
+    try {
+      handleMenuItemPress("namaz", true);
+    } catch (error) {
+      if (DEBUG) console.log("Display error:", error);
+    }
+  }
+
   async function fetchRandomVerse() {
     try {
       setVerseLoading(true);
@@ -439,6 +447,7 @@ export default function Islam_App() {
       setVerseNameTr(verseNameTr);
 
       setVerseLoading(false);
+      handleMenuItemPress("home", true);
     } catch (err) {
       if (DEBUG) console.log("fetchRandomVerse error:", err);
       setVerseLoading(false);
@@ -450,7 +459,7 @@ export default function Islam_App() {
       await Share.share({
         message:
           "Ezan vakitlerini ve Kur’an’dan günlük ayetleri gösteren bu uygulamayı Allah için paylaş!",
-      });
+        });
     } catch (error) {
       if (DEBUG) console.log("Share error:", error);
     }
@@ -548,8 +557,12 @@ export default function Islam_App() {
 
   function handleMenuItemPress(key, isLibOpened) {
     switch (key) {
+      case "home":
+        setActivePage(key);
+        toggleSidebar(isLibOpened);
+        break;
       case "imsakiye":
-        setActivePage(key)
+        setActivePage(key);
         toggleSidebar(isLibOpened);
         break;
       case "dini_bayramlar":
@@ -850,24 +863,6 @@ export default function Islam_App() {
                 </Text>
               )}
             </ScrollView>
-          </View>
-
-          <View style={styles.topIconRow}>
-            {/* Fetch Random Verse */}
-            <TouchableOpacity onPress={fetchRandomVerse} style={{ marginTop: 16 }}>
-              <Image source={require("./assets/icons/iconPack/shuffle_3.png")} style={{ width: 60, height: 60, tintColor: "#fff" }} resizeMode="contain"/>
-            </TouchableOpacity>
-
-            {/* Open Quran */}
-            <TouchableOpacity onPress={displayQuranPage} style={{ marginTop: 16 }}>
-              <Image source={require("./assets/icons/iconPack/quran.png")} style={{ width: 60, height: 60, tintColor: "#fff" }} resizeMode="contain"/>
-            </TouchableOpacity>
-
-            {/* Share */}
-            {/* günün ayetini arkadaşlarınla paylaş */}
-            <TouchableOpacity onPress={handleShare} style={{ marginTop: 16 }}>
-              <Image source={require("./assets/icons/iconPack/share_4.png")} style={{ width: 60, height: 60, tintColor: "#fff" }} resizeMode="contain"/>
-            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -1267,24 +1262,43 @@ export default function Islam_App() {
           />
         </View>
       )}
-        */}
+      */}
 
       {/* =======================
-          BOTTOM BAR WITH 9-DOTS BUTTON
-          ======================= */}
+          BOTTOM BAR 
+        ======================= */}
       <View style={styles.bottomBar}>
-        {/* Left space – later you can add shortcuts or Home etc. */}
-        <View style={{ flex: 1 }} />
-
-        {/* Center 9-dots button */}
-        {shouldShowFloatingButton() &&  (
-          <TouchableOpacity style={styles.bottomBarCenterButton} onPress={toggleAppLibrary} >
-            <Image source={require("./assets/icons/iconPack/menuIcon.png")} resizeMode="contain" style={styles.bottomBarCenterIcon}></Image>
+        {/* LEFT: Shuffle + Prayer */}
+        <View style={styles.bottomSide}>
+          <TouchableOpacity onPress={fetchRandomVerse} style={styles.bottomIconWrapper}>
+            <Image source={require("./assets/icons/iconPack/shuffle_3.png")} style={styles.bottomIcon} resizeMode="contain" />
           </TouchableOpacity>
-        )}
 
-        {/* Right space */}
-        <View style={{ flex: 1 }} />
+          <TouchableOpacity onPress={displayPrayerPage} style={styles.bottomIconWrapper}>
+            <Image source={require("./assets/icons/iconPack/namazTR.png")} style={styles.bottomIcon} resizeMode="contain" />
+          </TouchableOpacity>
+        </View>
+
+
+        {/* CENTER: App Library Button */}
+        <View style={styles.bottomCenter}>
+          {shouldShowFloatingButton() && (
+            <TouchableOpacity style={styles.bottomBarCenterButton} onPress={toggleAppLibrary} activeOpacity={0.8} >
+              <Image source={require("./assets/icons/iconPack/menuIcon.png")} style={styles.bottomBarCenterIcon} resizeMode="contain" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* RIGHT: Quran + Share */}
+        <View style={styles.bottomSide}>
+          <TouchableOpacity onPress={displayQuranPage} style={styles.bottomIconWrapper}>
+            <Image source={require("./assets/icons/iconPack/quran.png")} style={styles.bottomIcon} resizeMode="contain" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleShare} style={styles.bottomIconWrapper}>
+            <Image source={require("./assets/icons/iconPack/share_4.png")} style={styles.bottomIcon} resizeMode="contain" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Backdrop */}
@@ -1420,32 +1434,53 @@ export default function Islam_App() {
       zIndex: 15,
     },
     bottomBar: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      bottom: 0,
-      height: 70,
-      backgroundColor: "rgba(185, 11, 11, 0)",
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      backgroundColor: "rgba(0,0,0,0.4)",
+      position: "relative",
     },
+
+    bottomSide: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+    },
+
+    bottomCenter: {
+      position: "absolute",
+      left: "50%",
+      transform: [{ translateX: -36 }],
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    bottomIconWrapper: {
+      marginHorizontal: 4,
+    },
+
+    bottomIcon: {
+      width: 48,
+      height: 72,
+      tintColor: "#fff",
+    },
+
     bottomBarCenterButton: {
-      width: 80,
-      height: 80,
-      borderRadius: 32,
-      backgroundColor: "rgba(255,255,255,0.15)",
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: "rgba(255,255,255,0.10)",
       justifyContent: "center",
       alignItems: "center",
-      position: "absolute",
-      bottom: 24,
-      alignSelf: "center",
-      zIndex: 999,
+      borderWidth: 2,
+      borderColor: "rgba(255,255,255,0.35)",
     },
+
     bottomBarCenterIcon: {
-      width: 50,
-      height: 50,
+      width: 40,
+      height: 40,
       tintColor: "#fff",
     },
     appLibraryOverlay: {
