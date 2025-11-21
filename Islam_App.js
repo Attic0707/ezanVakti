@@ -89,7 +89,7 @@ const MENU_ITEMS = [
   { key: "otuziki_farz", label: "32 farz" },
   { key: "dini_yayin", label: "Dini yayın" },
   { key: "kabeden_canli", label: "Kabe ( Canlı )" },
-  { key: "esmaul_husna", label: "Esmaül Hüsna" },
+  { key: "esmaul_husna", label: "Esma'ül Hüsna" },
   { key: "islam_ilmihali", label: "İslam ilmihali" },
   { key: "kurani_kerim", label: "Kur’an-ı Kerim" },
   { key: "kuran_fihristi", label: "Kur’an fihristi" },
@@ -186,8 +186,7 @@ export default function Islam_App() {
 
   useEffect(() => {
     async function load() {
-      // setIsRamadanNow(await isRamadan());
-      setIsRamadanNow(true);
+      setIsRamadanNow(await isRamadan());
     }
     load();
   }, []);
@@ -861,7 +860,7 @@ export default function Islam_App() {
 
             {/* Fetch Random Verse */}
             <TouchableOpacity onPress={fetchRandomVerse} style={{ marginTop: 16 }}>
-              <Image source={require("./assets/icons/iconPack/shuffle.png")} size={20} color="#fff" style={{ alignSelf: "center" }} />
+              <Image source={require("./assets/icons/iconPack/shuffle.png")} size={25} color="#fff" style={{ alignSelf: "center" }} />
             </TouchableOpacity>
 
             {/* Share */}
