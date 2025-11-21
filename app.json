@@ -23,8 +23,6 @@
       "bundleIdentifier": "com.anonymous.islam-app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Konumunuzu, bulunduğunuz şehre göre namaz vakitlerini hesaplamak için kullanıyoruz.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Konumunuzu, bulunduğunuz şehre göre namaz vakitlerini hesaplamak için kullanıyoruz.",
-        "NSUserTrackingUsageDescription": "Bu uygulama, reklam ve analizler için takip izniniz olup olmadığını bilmeye ihtiyaç duymaktadır.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

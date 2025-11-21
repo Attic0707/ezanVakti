@@ -13,6 +13,7 @@ import DiniBayramlarPage from "./files/DiniBayramlarPage";
 import TakvimArkasiPage from "./files/TakvimArkasiPage";
 import CompassPage from "./files/CompassPage";
 import ZikirmatikPage from "./files/ZikirmatikPage";
+import IftarSayaciPage from "./files/IftarSayaciPage";
 import AbdestPage from "./files/AbdestPage";
 import NamazPage from "./files/NamazPage";
 import NamazSureleriPage from "./files/NamazSureleriPage";
@@ -74,6 +75,7 @@ const MENU_ITEMS = [
   { key: "takvim_arkasi", label: "Takvim arkası" },
   { key: "compass", label: "Kıble pusulası" },
   { key: "zikirmatik", label: "Zikirmatik" },
+  { key: "iftarSayaci", label: "İftar Sayacı" },
   { key: "abdest", label: "Abdest" },
   { key: "namaz", label: "Namaz" },
   { key: "namaz_sureleri", label: "Namaz sureleri" },
@@ -148,6 +150,7 @@ export default function Islam_App() {
 
   const [isAppLibraryOpen, setIsAppLibraryOpen] = useState(false);
   const [backgroundSource, setBackgroundSource] = useState(BACKGROUNDS[0]);
+  const [isRamadanNow, setIsRamadanNow] = useState(false);
   // const bannerAdUnitId = __DEV__ ? TestIds.BANNER : Platform.select({ ios: "ca-app-pub-3940256099942544/2934735716", android: "ca-app-pub-3940256099942544/6300978111"  });
 
   // init
@@ -179,6 +182,14 @@ export default function Islam_App() {
     };
 
     init();
+  }, []);
+
+  useEffect(() => {
+    async function load() {
+      // setIsRamadanNow(await isRamadan());
+      setIsRamadanNow(true);
+    }
+    load();
   }, []);
 
   /*
@@ -345,6 +356,27 @@ export default function Islam_App() {
     } catch (error) {
       if (DEBUG) console.log(error);
       Alert.alert("Hata", "Bildirimler ayarlanamadı.");
+    }
+  }
+
+  async function isRamadan() {
+    try {
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth() + 1;
+      const year = today.getFullYear();
+
+      const url = `https://api.aladhan.com/v1/gToH/${day}-${month}-${year}`;
+      const res = await fetch(url);
+      const json = await res.json();
+
+      if (!json?.data?.hijri) return false;
+
+      const hijriMonth = parseInt(json.data.hijri.month.number, 10); // 1–12
+      
+      return hijriMonth === 9; // Ramadan = month 9
+    } catch (e) {
+      return false;
     }
   }
 
@@ -537,6 +569,10 @@ export default function Islam_App() {
         setActivePage(key);
         toggleSidebar(isLibOpened);
         break;
+      case "iftarSayaci":
+        setActivePage(key);
+        toggleSidebar(isLibOpened);
+        break;
       case "abdest":
         setActivePage(key);
         toggleSidebar(isLibOpened);
@@ -707,6 +743,7 @@ export default function Islam_App() {
       takvim_arkasi: require("./assets/icons/iconPack/story.png"),
       compass: require("./assets/icons/iconPack/compass.png"),
       zikirmatik: require("./assets/icons/iconPack/stopwatch.png"),
+      iftarSayaci: require("./assets/icons/iconPack/counter.png"),
       abdest: require("./assets/icons/iconPack/abdest.png"),
       namaz: require("./assets/icons/iconPack/namaz.png"),
       namaz_sureleri: require("./assets/icons/iconPack/namaz_sure.png"),
@@ -868,6 +905,13 @@ export default function Islam_App() {
           ======================= */}
       {activePage === "zikirmatik" && (
         <ZikirmatikPage onBack={() => setActivePage("home")} />
+      )}
+
+      {/* =======================
+          İFTAR SAYACI PAGE
+          ======================= */}
+      {activePage === "iftarSayaci" && (
+        (<IftarSayaciPage onBack={() => setActivePage("home")} />)
       )}
 
       {/* =======================
@@ -1159,8 +1203,14 @@ export default function Islam_App() {
         style={[ styles.sidebar, { transform: [{ translateX: sidebarAnim }] }, ]} >
         <Text style={styles.sidebarTitle}>Menü</Text>
         <ScrollView>
-          {MENU_ITEMS.map((item) => (
-            <TouchableOpacity key={item.key} style={styles.sidebarItem} onPress={() => handleMenuItemPress(item.key, false)} >
+          {MENU_ITEMS.filter(item => {
+            if (item.key === "iftarSayaci" && !isRamadanNow) return false;
+            return true;
+          }).map(item => (
+            <TouchableOpacity key={item.key} style={styles.sidebarItem} onPress={() => {
+                setActivePage(item.key);
+                closeSidebar();
+              }}>
               <Text style={styles.sidebarItemText}>{item.label}</Text>
             </TouchableOpacity>
           ))}
@@ -1179,14 +1229,22 @@ export default function Islam_App() {
             <Text style={styles.appLibraryTitle}> Uygulamalar </Text>
 
             <ScrollView contentContainerStyle={styles.appLibraryGrid}>
-              {MENU_ITEMS.map((item) => (
-                <TouchableOpacity key={item.key} style={styles.appTile} onPress={() => { handleMenuItemPress(item.key, true); setIsAppLibraryOpen(false); }} >
-                  <View style={styles.appTileIcon}>
-                    <Image source={getIconForKey(item.key)} style={{ width: 30, height: 30}} resizeMode="contain" />
-                  </View>
-                  <ScaledText baseSize={14} style={styles.appTileLabel}> {item.label} </ScaledText>
-                </TouchableOpacity>
-              ))}
+            {MENU_ITEMS.filter(item => {
+                if (item.key === "iftarSayaci" && !isRamadanNow) return false;
+                return true;
+            }).map((item) => (
+              <TouchableOpacity key={item.key} style={styles.appTile} onPress={() => { 
+                  handleMenuItemPress(item.key, true);
+                  setIsAppLibraryOpen(false); }} >
+                <View style={styles.appTileIcon}>
+                  <Image source={getIconForKey(item.key)} style={{ width: 30, height: 30 }} resizeMode="contain" />
+                </View>
+
+                <ScaledText baseSize={14} style={styles.appTileLabel}>
+                  {item.label}
+                </ScaledText>
+              </TouchableOpacity>
+            ))}
             </ScrollView>
           </View>
         </View>
