@@ -144,12 +144,7 @@ export default function NamazPage({ onBack }) {
         {sections.map((sec, index) => {
           const illustrated = isIllustratedIndex(index);
           const CardWrapper = illustrated ? TouchableOpacity : View;
-          const cardProps = illustrated
-            ? {
-                activeOpacity: 0.8,
-                onPress: () => openStepModal(sec, index),
-              }
-            : {};
+          const cardProps = illustrated ? { activeOpacity: 0.8, onPress: () => openStepModal(sec, index), } : {};
 
           return (
             <CardWrapper
@@ -177,12 +172,7 @@ export default function NamazPage({ onBack }) {
       </ScrollView>
 
       {/* ===== MODAL: FIGURE DEMO + ANIMATION ===== */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
+      <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={closeModal} >
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             {activeStep && (
@@ -197,10 +187,7 @@ export default function NamazPage({ onBack }) {
 
                 {/* Tiny play/pause button */}
                 {poseSequence.length > 0 && (
-                  <TouchableOpacity
-                    onPress={toggleAnimation}
-                    style={styles.playButton}
-                  >
+                  <TouchableOpacity onPress={toggleAnimation} style={styles.playButton} >
                     <Text style={styles.playButtonText}>
                       {isAnimating ? "⏸ Animasyonu Durdur" : "▶ Animasyonu Oynat"}
                     </Text>
@@ -211,10 +198,7 @@ export default function NamazPage({ onBack }) {
                   Bu şema, hareketin temel duruşlarını sırasıyla gösterir.
                 </Text>
 
-                <TouchableOpacity
-                  onPress={closeModal}
-                  style={styles.modalCloseButton}
-                >
+                <TouchableOpacity onPress={closeModal} style={styles.modalCloseButton} >
                   <Text style={styles.modalCloseText}>Kapat</Text>
                 </TouchableOpacity>
               </>

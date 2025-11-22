@@ -1,14 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  TouchableOpacity,
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Modal,
-  Image,
-  Animated,
-} from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Image, Animated, } from "react-native";
 import ScaledText from "./ScaledText";
 
 // 🔹 Placeholder — you will replace these with actual PNG paths later
@@ -152,7 +143,7 @@ export default function AbdestPage({ onBack }) {
             <Animated.Image
               source={
                 ABDEST_IMAGES[activeStep]?.[0] ??
-                require("../assets/abdest/step3_1.png")
+                require("../assets/images/abdest/step3_1.png")
               }
               style={[styles.modalImage, { opacity: fadeAnim }]} 
               resizeMode="contain"

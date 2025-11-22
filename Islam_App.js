@@ -14,6 +14,7 @@ import TakvimArkasiPage from "./files/TakvimArkasiPage";
 import CompassPage from "./files/CompassPage";
 import ZikirmatikPage from "./files/ZikirmatikPage";
 import IftarSayaciPage from "./files/IftarSayaciPage";
+import IlhamPage from "./files/IlhamPage";
 import AbdestPage from "./files/AbdestPage";
 import NamazPage from "./files/NamazPage";
 import NamazSureleriPage from "./files/NamazSureleriPage";
@@ -78,6 +79,7 @@ const MENU_ITEMS = [
   { key: "compass", label: "Kıble pusulası" },
   { key: "zikirmatik", label: "Zikirmatik" },
   { key: "iftarSayaci", label: "İftar Sayacı" },
+  { key: "ilham", label: "İlham" },
   { key: "abdest", label: "Abdest" },
   { key: "namaz", label: "Namaz" },
   { key: "namaz_sureleri", label: "Namaz sureleri" },
@@ -589,6 +591,10 @@ export default function Islam_App() {
         setActivePage(key);
         toggleSidebar(isLibOpened);
         break;
+      case "ilham":
+        setActivePage(key);
+        toggleSidebar(isLibOpened);
+        break;
       case "abdest":
         setActivePage(key);
         toggleSidebar(isLibOpened);
@@ -768,6 +774,7 @@ export default function Islam_App() {
       compass: require("./assets/icons/iconPack/compass.png"),
       zikirmatik: require("./assets/icons/iconPack/stopwatch.png"),
       iftarSayaci: require("./assets/icons/iconPack/counter.png"),
+      ilham: require("./assets/icons/iconPack/ilham.png"),
       abdest: require("./assets/icons/iconPack/abdest.png"),
       namaz: require("./assets/icons/iconPack/namaz.png"),
       namaz_sureleri: require("./assets/icons/iconPack/namaz_sure.png"),
@@ -823,7 +830,7 @@ export default function Islam_App() {
 
   return (
     <ImageBackground source={backgroundSource} style={styles.background} resizeMode="cover" >
-      <TextSizeButton activePage={activePage} visibleOnPages={[ "imsakiye", "dini_bayramlar", "takvim_arkasi", "abdest", "namaz", "namaz_sureleri", "namaz_takip", "yasin_suresi", "ruyet", "kirk_hadis", "veda_hutbesi", "otuziki_farz", "islam_ilmihali", "kuran_fihristi", "hadis_fihristi", "yedis_yuz_ucyuz_hadis", "secme_ayetler", "guzel_dualar", "guzel_sozler", "salavatlar", "peygamberler_tarihi", "efendimizin_hayati", "dort_halife", "sahabelerin_hayati", "hz_mevlana", "mesnevi", "ramazan_ve_oruc", "dini_sozluk", "isimler_sozlugu", "cevsan", "islami_soru_cevap", "namazin_turkcesi", "hac_umre_rehberi", "about", "help"]} top={50} right={16}/>
+      <TextSizeButton activePage={activePage} visibleOnPages={[ "imsakiye", "dini_bayramlar", "takvim_arkasi", "ilham" ,"abdest", "namaz", "namaz_sureleri", "namaz_takip", "yasin_suresi", "ruyet", "kirk_hadis", "veda_hutbesi", "otuziki_farz", "islam_ilmihali", "kuran_fihristi", "hadis_fihristi", "yedis_yuz_ucyuz_hadis", "secme_ayetler", "guzel_dualar", "guzel_sozler", "salavatlar", "peygamberler_tarihi", "efendimizin_hayati", "dort_halife", "sahabelerin_hayati", "hz_mevlana", "mesnevi", "ramazan_ve_oruc", "dini_sozluk", "isimler_sozlugu", "cevsan", "islami_soru_cevap", "namazin_turkcesi", "hac_umre_rehberi", "about", "help"]} top={50} right={16}/>
       {/* =======================
           HOME PAGE
           ======================= */}
@@ -921,6 +928,13 @@ export default function Islam_App() {
           ======================= */}
       {activePage === "iftarSayaci" && (
         (<IftarSayaciPage onBack={() => setActivePage("home")} />)
+      )}
+
+      {/* =======================
+          İLHAM SAYACI PAGE
+          ======================= */}
+      {activePage === "ilham" && (
+        (<IlhamPage onBack={() => setActivePage("home")} />)
       )}
 
       {/* =======================
