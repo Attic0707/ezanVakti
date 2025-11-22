@@ -24,7 +24,7 @@ export function TextSizeProvider({ children }) {
 
   async function updateScale(newScale) {
     // clamp between 0.7x and 1.8x
-    const clamped = Math.max(0.7, Math.min(1.8, newScale));
+    const clamped = Math.max(0.7, Math.min(2.5, newScale));
     setFontScale(clamped);
     try {
       await AsyncStorage.setItem("global_font_scale", String(clamped));

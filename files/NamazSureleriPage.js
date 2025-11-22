@@ -1,8 +1,20 @@
-import {TouchableOpacity, View, Text, StyleSheet, ScrollView} from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { Audio } from "expo-av";
 import ScaledText from "./ScaledText";
 
 export default function NamazSureleriPage({ onBack }) {
+  const [currentSound, setCurrentSound] = useState(null);
+  const [currentPlayingKey, setCurrentPlayingKey] = useState(null);
 
+  // ---- DATA ----
   const SECTIONS = [
     {
       title: "Namazda Okunan Sûreler",
@@ -17,6 +29,15 @@ export default function NamazSureleriPage({ onBack }) {
 اِيَّاكَ نَعْبُدُ وَاِيَّاكَ نَسْتَعٖينُ
 اهْدِنَا الصِّرَاطَ الْمُسْتَقٖيمَ
 صِرَاطَ الَّذٖينَ اَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّآلّٖينَ`,
+          roman: `Bismillahirrahmânirrahîm.
+Elhamdu lillâhi Rabbil âlemîn.
+Errahmânirrahîm.
+Mâliki yevmiddîn.
+İyyâke na‘budu ve iyyâke neste‘în.
+İhdinessırâtel müstakîm.
+Sırâtallezîne en‘amte aleyhim ğayril mağdûbi aleyhim ve leddâllîn.`,
+          // put your real path here:
+          audio: require("../assets/sounds/fatiha.mp3"),
         },
         {
           key: "ikhlas",
@@ -26,6 +47,12 @@ export default function NamazSureleriPage({ onBack }) {
 اللّٰهُ الصَّمَدُ
 لَمْ يَلِدْ وَلَمْ يُولَدْ
 وَلَمْ يَكُنْ لَّهُ كُفُوًا اَحَدٌ`,
+          roman: `Bismillahirrahmânirrahîm.
+Kul huvallâhu ehad.
+Allâhussamed.
+Lem yelid ve lem yûled.
+Ve lem yekun lehû kufuven ehad.`,
+          audio: require("../assets/sounds/ihlas.mp3"),
         },
         {
           key: "felak",
@@ -36,6 +63,13 @@ export default function NamazSureleriPage({ onBack }) {
 وَمِنْ شَرِّ غَاسِقٍ اِذَا وَقَبَ
 وَمِنْ شَرِّ النَّفّاثَاتِ فِى الْعُقَدِ
 وَمِنْ شَرِّ حَاسِدٍ اِذَا حَسَدَ`,
+          roman: `Bismillahirrahmânirrahîm.
+Kul e‘ûzü birabbil-felek.
+Min şerri mâ halak.
+Ve min şerri ğâsikın izâ vekab.
+Ve min şerrin-neffâsâti fil ‘ukad.
+Ve min şerri hâsidin izâ hased.`,
+          audio: require("../assets/sounds/felak.mp3"),
         },
         {
           key: "nas",
@@ -47,6 +81,14 @@ export default function NamazSureleriPage({ onBack }) {
 مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ
 الَّذٖى يُوَسْوِسُ فِى صُدُورِ النَّاسِ
 مِنَ الْجِنَّةِ وَالنَّاسِ`,
+          roman: `Bismillahirrahmânirrahîm.
+Kul e‘ûzü birabbin-nâs.
+Melikin-nâs.
+İlâhin-nâs.
+Min şerril-vesvâsil-hannâs.
+Ellezî yuvesvisu fî sudûrin-nâs.
+Minel cinneti ven-nâs.`,
+          audio: require("../assets/sounds/nas.mp3"),
         },
         {
           key: "kevser",
@@ -55,6 +97,11 @@ export default function NamazSureleriPage({ onBack }) {
 اِنَّا اَعْطَيْنَاكَ الْكَوْثَرَ
 فَصَلِّ لِرَبِّكَ وَانْحَرْ
 اِنَّ شَانِئَكَ هُوَ الْاَبْتَرُ`,
+          roman: `Bismillahirrahmânirrahîm.
+İnnâ a‘taynâkel kevser.
+Fe-salli li rabbike venhar.
+İnne şâni’eke huvel ebter.`,
+          audio: require("../assets/sounds/kevser.mp3"),
         },
       ],
     },
@@ -67,30 +114,113 @@ export default function NamazSureleriPage({ onBack }) {
           arabic: `اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوٰتُ وَالطَّيِّبَاتُ
 اَلسَّلَامُ عَلَيْكَ اَيُّهَا النَّبِىُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ
 اَلسَّلَامُ عَلَيْنَا وَعَلٰى عِبَادِ اللّٰهِ الصَّالِحِينَ
-اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ`,
+اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ
+وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ`,
+          roman: `Ettehiyyâtü lillâhi vessalavâtü vettayyibât.
+Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh.
+Esselâmü aleynâ ve alâ ibâdillâhissâlihîn.
+Eşhedü en lâ ilâhe illallâh
+ve eşhedü enne Muhammeden abdühû ve resûlüh.`,
+          audio: require("../assets/sounds/ettehiyyatu.mp3"),
         },
         {
           key: "salli",
-          name: "Salli ve Barik Duaları",
-          arabic: `اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ
-كَمَا صَلَّيْتَ عَلٰى اِبْرَاهٖيمَ وَعَلٰى اٰلِ اِبْرَاهٖيمَ
-وَبَارِكْ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ
-كَمَا بَارَكْتَ عَلٰى اِبْرَاهٖيمَ وَعَلٰى اٰلِ اِبْرَاهٖيمَ
-فِى الْعَالَمٖينَ اِنَّكَ حَمٖيدٌ مَجٖيدٌ`,
+          name: "Salli ve Bârik Duaları",
+          arabic: `اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَعَلٰى آلِ مُحَمَّدٍ
+كَمَا صَلَّيْتَ عَلٰى اِبْرَاهٖيمَ وَعَلٰى آلِ اِبْرَاهٖيمَ
+اِنَّكَ حَمٖيدٌ مَجٖيدٌ`,
+          roman: `Allâhümme salli alâ Muhammedin ve alâ âli Muhammed,
+kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm,
+inneke hamîdün mecîd.`,
+          audio: require("../assets/sounds/salli.mp3"),
+        },
+        {
+          key: "barik",
+          name: "Salli ve Bârik Duaları",
+          arabic: `اَللّٰهُمَّ بَارِكْ عَلٰى مُحَمَّدٍ وَعَلٰى آلِ مُحَمَّدٍ
+كَمَا بَارَكْتَ عَلٰى اِبْرَاهٖيمَ وَعَلٰى آلِ اِبْرَاهٖيمَ
+اِنَّكَ حَمٖيدٌ مَجٖيدٌ
+          `,
+          roman: `
+Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed,
+kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm,
+inneke hamîdün mecîd.`,
+          audio: require("../assets/sounds/barik.mp3"),
         },
         {
           key: "rabbenagfirli",
-          name: "Rabbenâ Duaları",
-          arabic: `رَبَّنَا اغْفِرْ لِى وَلِوَالِدَىَّ وَلِلْمُؤْمِنٖينَ يَوْمَ يَقُومُ الْحِسَابُ`,
+          name: "Rabbenâ Duası (Kısa)",
+          arabic: `رَبَّنَا اغْفِرْ لِى وَلِوَالِدَىَّ
+وَلِلْمُؤْمِنٖينَ يَوْمَ يَقُومُ الْحِسَابُ`,
+          roman: `Rabbenâğfir lî ve li vâlîdeyye
+ve lil-mü’minîne yevme yekûmul hisâb.`,
         },
       ],
     },
   ];
 
+  // ---- AUDIO HANDLERS ----
+  useEffect(() => {
+    // cleanup sound on unmount
+    return () => {
+      if (currentSound) {
+        currentSound.unloadAsync();
+      }
+    };
+  }, [currentSound]);
+
+  async function stopCurrentSound() {
+    try {
+      if (currentSound) {
+        await currentSound.stopAsync();
+        await currentSound.unloadAsync();
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setCurrentSound(null);
+      setCurrentPlayingKey(null);
+    }
+  }
+
+  async function handlePlayPress(item) {
+    try {
+      // If this item is already playing -> stop it
+      if (currentPlayingKey === item.key) {
+        await stopCurrentSound();
+        return;
+      }
+
+      // Stop any previous sound
+      await stopCurrentSound();
+
+      if (!item.audio) {
+        Alert.alert("Ses bulunamadı", "Bu okuma için ses dosyası eklenmemiş.");
+        return;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(item.audio);
+      setCurrentSound(sound);
+      setCurrentPlayingKey(item.key);
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          stopCurrentSound();
+        }
+      });
+
+      await sound.playAsync();
+    } catch (e) {
+      console.log("Audio play error:", e);
+      Alert.alert("Hata", "Ses oynatılırken bir sorun oluştu.");
+    }
+  }
+
   return (
-    <View style={[styles.overlay, { paddingTop: 60 }]}>
-      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }}>
-        <Text style={{ color: "#ffffff", fontSize: 18 }}>←</Text>
+    <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]} >
+      {/* Back button */}
+      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
+        <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
       <Text style={styles.title}>Namaz Sûreleri & Duaları</Text>
@@ -100,12 +230,38 @@ export default function NamazSureleriPage({ onBack }) {
           <View key={section.title} style={{ marginBottom: 24 }}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
 
-            {section.items.map((s) => (
-              <View key={s.key} style={styles.card}>
-                <ScaledText baseSize={16} style={styles.surahName}>{s.name}</ScaledText>
-                <Text style={styles.surahArabic}>{s.arabic}</Text>
-              </View>
-            ))}
+            {section.items.map((item) => {
+              const isPlaying = currentPlayingKey === item.key;
+              return (
+                <View key={item.key} style={styles.card}>
+                  <View style={styles.cardHeaderRow}>
+                    <ScaledText baseSize={16} style={styles.surahName}>
+                      {item.name}
+                    </ScaledText>
+
+                    <TouchableOpacity
+                      onPress={() => handlePlayPress(item)}
+                      style={[
+                        styles.audioButton,
+                        isPlaying && styles.audioButtonActive,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.audioButtonText,
+                          isPlaying && styles.audioButtonTextActive,
+                        ]}
+                      >
+                        {isPlaying ? "Durdur" : "Dinle"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={styles.surahArabic}>{item.arabic}</Text>
+                  <Text style={styles.romanText}>{item.roman}</Text>
+                </View>
+              );
+            })}
           </View>
         ))}
 
@@ -140,15 +296,47 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 14,
   },
+  cardHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   surahName: {
     color: "#fff",
     fontWeight: "600",
-    marginBottom: 6,
+    marginRight: 10,
+    flexShrink: 1,
+  },
+  audioButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.5)",
+  },
+  audioButtonActive: {
+    backgroundColor: "#ffdd55",
+    borderColor: "#ffdd55",
+  },
+  audioButtonText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  audioButtonTextActive: {
+    color: "#333",
   },
   surahArabic: {
     fontSize: 22,
     color: "#ffffff",
     textAlign: "right",
     lineHeight: 34,
+    marginBottom: 8,
+  },
+  romanText: {
+    fontSize: 14,
+    color: "#d0d7e2",
+    lineHeight: 22,
   },
 });
