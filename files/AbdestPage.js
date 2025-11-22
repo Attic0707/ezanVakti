@@ -13,14 +13,14 @@ import ScaledText from "./ScaledText";
 
 // 🔹 Placeholder — you will replace these with actual PNG paths later
 const ABDEST_IMAGES = {
-  3: [require("../assets/abdest/step3_1.png")],
-  4: [require("../assets/abdest/step3_1.png")],
-  5: [require("../assets/abdest/step3_1.png")],
-  6: [require("../assets/abdest/step3_1.png")], 
-  7: [require("../assets/abdest/step3_1.png")],
-  8: [require("../assets/abdest/step3_1.png")],
-  9: [require("../assets/abdest/step3_1.png")],
-  10: [require("../assets/abdest/step3_1.png")],
+  3: [require("../assets/images/abdest/step3_1.png")],
+  4: [require("../assets/images/abdest/step3_1.png")],
+  5: [require("../assets/images/abdest/step3_1.png")],
+  6: [require("../assets/images/abdest/step3_1.png")], 
+  7: [require("../assets/images/abdest/step3_1.png")],
+  8: [require("../assets/images/abdest/step3_1.png")],
+  9: [require("../assets/images/abdest/step3_1.png")],
+  10: [require("../assets/images/abdest/step3_1.png")],
 };
 
 export default function AbdestPage({ onBack }) {
@@ -31,7 +31,7 @@ export default function AbdestPage({ onBack }) {
 
   const steps = [
     {
-      title: "1. Niyet",
+      title: "1. Niyet", 
       text: "“Niyet ettim Allah rızası için abdest almaya.” diye kalpten niyet edilir.",
     },
     {
