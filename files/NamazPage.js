@@ -305,8 +305,8 @@ function PrayerFigure({ pose }) {
   const map = {
     qiyam: require("../assets/images/namaz/qiyam.png"),
     ruku: require("../assets/images/namaz/ruku.png"),
-    sujud: require("../assets/images/namaz/tekbir.png"),
-    sitting: require("../assets/images/namaz/qiyam.png"),
+    sujud: require("../assets/images/namaz/sujud.png"),
+    sitting: require("../assets/images/namaz/sitting.png"),
     takbir: require("../assets/images/namaz/tekbir.png"),
   };
 
