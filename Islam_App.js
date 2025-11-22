@@ -823,7 +823,7 @@ export default function Islam_App() {
 
   return (
     <ImageBackground source={backgroundSource} style={styles.background} resizeMode="cover" >
-      <TextSizeButton activePage={activePage} visibleOnPages={[ "imsakiye", "dini_bayramlar", "takvim_arkasi", "abdest", "namaz", "namaz_sureleri", "namaz_takip", "yasin_suresi", "kirk_hadis", "veda_hutbesi", "otuziki_farz", "islam_ilmihali", "kuran_fihristi", "hadis_fihristi", "yedis_yuz_ucyuz_hadis", "secme_ayetler", "guzel_dualar", "guzel_sozler", "salavatlar", "peygamberler_tarihi", "efendimizin_hayati", "dort_halife", "sahabelerin_hayati", "hz_mevlana", "mesnevi", "ramazan_ve_oruc", "dini_sozluk", "isimler_sozlugu", "cevsan", "islami_soru_cevap", "namazin_turkcesi", "hac_umre_rehberi", "about", "help"]} top={50} right={16}/>
+      <TextSizeButton activePage={activePage} visibleOnPages={[ "imsakiye", "dini_bayramlar", "takvim_arkasi", "abdest", "namaz", "namaz_sureleri", "namaz_takip", "yasin_suresi", "ruyet", "kirk_hadis", "veda_hutbesi", "otuziki_farz", "islam_ilmihali", "kuran_fihristi", "hadis_fihristi", "yedis_yuz_ucyuz_hadis", "secme_ayetler", "guzel_dualar", "guzel_sozler", "salavatlar", "peygamberler_tarihi", "efendimizin_hayati", "dort_halife", "sahabelerin_hayati", "hz_mevlana", "mesnevi", "ramazan_ve_oruc", "dini_sozluk", "isimler_sozlugu", "cevsan", "islami_soru_cevap", "namazin_turkcesi", "hac_umre_rehberi", "about", "help"]} top={50} right={16}/>
       {/* =======================
           HOME PAGE
           ======================= */}
@@ -984,6 +984,13 @@ export default function Islam_App() {
           ======================= */}
       {activePage === "yakin_camiler" && (
         <NearbyMosquesPage onBack={() => setActivePage("home")} />
+      )}
+
+      {/* =======================
+          RUYET PAGE
+          ======================= */}
+      {activePage === "ruyet" && (
+        <RuyetPage onBack={() => setActivePage("home")} />
       )}
 
       {/* =======================
