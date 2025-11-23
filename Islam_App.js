@@ -6,7 +6,6 @@ import * as Location from "expo-location";
 import TextSizeButton from "./files/TextSizeButton";
 import ScaledText from "./files/ScaledText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TestIds } from "react-native-google-mobile-ads";
 
 // Google Mobile Ads
 import mobileAds, { BannerAd, BannerAdSize, TestIds, } from "react-native-google-mobile-ads";
