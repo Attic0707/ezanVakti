@@ -166,7 +166,6 @@ export default function Islam_App() {
   const [isAppLibraryOpen, setIsAppLibraryOpen] = useState(false);
   const [backgroundSource, setBackgroundSource] = useState(BACKGROUNDS[0]);
   const [isRamadanNow, setIsRamadanNow] = useState(false);
-  const { adsEnabled, tryShowInterstitial, toggleAds } = useAds();
   const { maybeShowInterstitial } = useInterstitialAds(settings.adsEnabled);
 
   // init

@@ -29,6 +29,7 @@ yarn-error.log*
 .expo/servers.json
 *.expo
 expo-error.log
+.xcode.env.local
 
 # EAS build artifacts
 *.tar.gz
