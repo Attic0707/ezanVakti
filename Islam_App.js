@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import TextSizeButton from "./files/TextSizeButton";
 import ScaledText from "./files/ScaledText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TestIds } from "react-native-google-mobile-ads";
 
 // Google Mobile Ads
 import mobileAds, { BannerAd, BannerAdSize, TestIds, } from "react-native-google-mobile-ads";
@@ -75,13 +76,10 @@ Notifications.setNotificationHandler({
 // Sidebar config
 const SIDEBAR_WIDTH = 260;
 
-const bannerAdUnitId =
-  __DEV__
-    ? TestIds.BANNER
-    : Platform.select({
-        ios: "ca-app-pub-8919233762784771/1697907277",
-        android: "ca-app-pub-8919233762784771/9174081776",
-      });
+// ad config
+const bannerAdUnitId = TestIds.BANNER;
+// approved olduğunda bunu geri aç
+// const bannerAdUnitId = __DEV__ ? TestIds.BANNER : Platform.select({ ios: "ca-app-pub-8919233762784771/1697907277", android: "ca-app-pub-8919233762784771/9174081776", });
 
 const MENU_ITEMS = [
   { key: "imsakiye", label: "İmsakiye" },
@@ -168,7 +166,6 @@ export default function Islam_App() {
   const [isAppLibraryOpen, setIsAppLibraryOpen] = useState(false);
   const [backgroundSource, setBackgroundSource] = useState(BACKGROUNDS[0]);
   const [isRamadanNow, setIsRamadanNow] = useState(false);
-  // const bannerAdUnitId = __DEV__ ? TestIds.BANNER : Platform.select({ ios: "ca-app-pub-3940256099942544/2934735716", android: "ca-app-pub-3940256099942544/6300978111"  });
 
   // init
   useEffect(() => {
