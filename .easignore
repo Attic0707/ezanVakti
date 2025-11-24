@@ -1,5 +1,5 @@
 # =========================
-# CORE: DEPENDENCIES & CACHES
+# CORE: JS / EXPO
 # =========================
 
 # Node modules - rebuilt on EAS
@@ -20,57 +20,26 @@ yarn-debug.log*
 yarn-error.log*
 
 # =========================
-# ANDROID NATIVE PROJECT
+# NATIVE PROJECTS
+# EAS will regenerate ios/android via `expo prebuild`
+# (safe as long as you don't have custom native code you hand-edited)
 # =========================
 
-# Gradle & build outputs
-android/.gradle/
-android/.idea/
-android/build/
-android/app/build/
-android/.cxx/
-
-# Local-only config
-android/local.properties
-
-# =========================
-# IOS NATIVE PROJECT
-# =========================
-
-# Xcode build outputs & Pods
-ios/build/
-ios/DerivedData/
-ios/Pods/
-
-# Xcode workspace/user data
-ios/*.xcworkspace
-ios/*.xcworkspace/**
-ios/*/*.xcworkspace
-ios/*/*.xcworkspace/**
-
-ios/*/xcuserdata/
-ios/*/*/xcuserdata/
-ios/*/*/xcshareddata/
-
-# Some random Xcode user settings
-ios/*.xcodeproj/project.xcworkspace/
-ios/*.xcodeproj/xcuserdata/
+ios/
+android/
 
 # =========================
 # VCS / EDITOR / OS JUNK
 # =========================
 
-# Git repo (huge)
 .git/
 .gitignore
 .github/
 
-# Editors / IDEs
 .vscode/
 .idea/
 *.iml
 
-# OS junk
 .DS_Store
 Thumbs.db
 
@@ -98,9 +67,9 @@ seo.txt
 
 # =========================
 # OPTIONAL: LARGE UNUSED ASSETS
-# (Uncomment if you later move old/unused stuff)
+# (only if you move unused stuff here)
 # =========================
 
-# assets/old/
+# assets/unused/
 # assets/tmp/
 # assets/raw/
