@@ -1,0 +1,106 @@
+# =========================
+# CORE: DEPENDENCIES & CACHES
+# =========================
+
+# Node modules - rebuilt on EAS
+node_modules/
+
+# Expo / Metro caches
+.expo/
+.expo-shared/
+.expo-packager/
+.expo3/
+.metro-cache/
+metro-cache/
+expo-packager-cache-*/
+
+# NPM/Yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# ANDROID NATIVE PROJECT
+# =========================
+
+# Gradle & build outputs
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/.cxx/
+
+# Local-only config
+android/local.properties
+
+# =========================
+# IOS NATIVE PROJECT
+# =========================
+
+# Xcode build outputs & Pods
+ios/build/
+ios/DerivedData/
+ios/Pods/
+
+# Xcode workspace/user data
+ios/*.xcworkspace
+ios/*.xcworkspace/**
+ios/*/*.xcworkspace
+ios/*/*.xcworkspace/**
+
+ios/*/xcuserdata/
+ios/*/*/xcuserdata/
+ios/*/*/xcshareddata/
+
+# Some random Xcode user settings
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+
+# =========================
+# VCS / EDITOR / OS JUNK
+# =========================
+
+# Git repo (huge)
+.git/
+.gitignore
+.github/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.iml
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# =========================
+# BUILD ARTIFACTS
+# =========================
+
+*.apk
+*.aab
+*.ipa
+*.app
+*.tar.gz
+
+# =========================
+# TEXT FILES NOT NEEDED FOR BUILD
+# (kept in repo, but no need to upload to EAS)
+# =========================
+
+privacy policy (ENG).txt
+privacy policy (TR).txt
+terms and conditions (ENG).txt
+terms and conditions (TR).txt
+app store desc.txt
+seo.txt
+
+# =========================
+# OPTIONAL: LARGE UNUSED ASSETS
+# (Uncomment if you later move old/unused stuff)
+# =========================
+
+# assets/old/
+# assets/tmp/
+# assets/raw/
