@@ -235,7 +235,7 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
                     <TouchableOpacity
                       onPress={() => handlePlayPress(item)} style={[ styles.audioButton, isPlaying && styles.audioButtonActive, ]} >
                       <Text style={[ styles.audioButtonText, isPlaying && styles.audioButtonTextActive, ]} >
-                        {isPlaying ? "Durdur" : "Dinle"}
+                        {isPlaying ? "⏸ Durdur" : "▶ Dinle"}
                       </Text>
                     </TouchableOpacity>
                   </View>

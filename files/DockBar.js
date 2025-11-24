@@ -4,7 +4,7 @@ import { BlurView } from "expo-blur";
 
 const ITEMS = [
   { key: "home", icon: require("../assets/icons/iconPack/home.png") },
-  { key: "namaz", icon: require("../assets/icons/iconPack/prayer.png") },
+  { key: "gunun_ayeti", icon: require("../assets/icons/iconPack/ayet.png") },
   { key: "kurani_kerim", icon: require("../assets/icons/iconPack/quran_dock.png") },
   { key: "settings", icon: require("../assets/icons/iconPack/settings_dock.png") },
   { key: "kaza_takip", icon: require("../assets/icons/iconPack/qna.png") },

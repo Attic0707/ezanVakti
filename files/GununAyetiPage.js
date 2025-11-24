@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import {TouchableOpacity, View, Text, StyleSheet, ScrollView } from "react-native";
+import {TouchableOpacity, View, Text, StyleSheet, ScrollView, Share } from "react-native";
 import ScaledText from "./ScaledText";
 
 const DEBUG = false;
 
 export default function GununAyetiPage({ onBack }) {
-    const [loading, setLoading] = useState(false);
     const [verseLoading, setVerseLoading] = useState(false);
     const [verseRef, setVerseRef] = useState("");
     const [verseArabic, setVerseArabic] = useState("");
@@ -84,7 +83,7 @@ export default function GununAyetiPage({ onBack }) {
         }
     }
 
-    async function handleShare() {
+    async function shareVerse() {
         try {
         let message = `Günün ayeti: "${verseTurkish}". \nEzan vakitlerini ve Kur’an’dan günlük ayetleri gösteren bu uygulamaya bir göz at!`;
         await Share.share({
@@ -95,11 +94,19 @@ export default function GununAyetiPage({ onBack }) {
         }
     }
 
+    async function retrieveAnother() {
+        try {
+            await fetchRandomVerse();
+        } catch (e) {
+            if (DEBUG) console.log("init error:", e);
+        }
+    }
+
     return (
         <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20, }, ]} >
         {/* Back button (same pattern as other pages) */}
         <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
-          <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
+          <Text style={{ color: "#ffffff", fontSize: 25 }}>← </Text>
         </TouchableOpacity>
 
         <Text style={styles.verseTitle}>Günün Ayeti</Text>
@@ -120,7 +127,19 @@ export default function GununAyetiPage({ onBack }) {
                     </View> ) : (
 
                 <ScaledText baseSize={14} style={styles.verseLoading}> Ayet alınamadı. Aşağıdan tekrar deneyebilirsin. </ScaledText>
-              )}
+                )}
+
+            <TouchableOpacity onPress={retrieveAnother} style={ styles.retrieveButton } > 
+                <Text style={ styles.retrieveText } >
+                    Yeni Ayet Getir
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={shareVerse} style={ styles.retrieveButton } > 
+                <Text style={ styles.retrieveText } >
+                    Ayeti Paylaş
+                </Text>
+            </TouchableOpacity>
             </ScrollView>
           </View>
       </View>
@@ -187,5 +206,16 @@ const styles = StyleSheet.create({
         color: "#9aa4b8",
         textAlign: "center",
         marginTop: 4,
+    },
+    retrieveButton: {
+        paddingHorizontal: 0,
+        paddingVertical: 6,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.5)",
+        alignItems: "center",
+    },
+    retrieveText: {
+        color: "#ffffffff",
     },
 });
