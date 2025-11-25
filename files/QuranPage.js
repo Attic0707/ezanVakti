@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: "rgba(0,0,0,0.7)",
       paddingTop: 60,
+      paddingBottom: 90,
       paddingHorizontal: 0,
     },
     quranHeader: {

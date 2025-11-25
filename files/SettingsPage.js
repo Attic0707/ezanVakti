@@ -7,7 +7,9 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [darkTheme, setDarkTheme] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [backgroundChanged, setBackgroundChange] = useState(false);
   const [adsEnabled, setAdsEnabled] = useState(true);
+  const [cooldown, setCooldown] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -18,6 +20,7 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
         setVibrationEnabled(parsed.vibrationEnabled ?? true);
         setDarkTheme(parsed.darkTheme ?? true);
         setNotificationsEnabled(parsed.notificationsEnabled ?? true);
+        setBackgroundChange(parsed.backgroundChanged ?? true);
         setAdsEnabled(parsed.adsEnabled ?? true);
       }
     };
@@ -30,6 +33,7 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
       vibrationEnabled,
       darkTheme,
       notificationsEnabled,
+      backgroundChanged,
       adsEnabled,
     };
 
@@ -39,6 +43,26 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
 
     await AsyncStorage.setItem("settings", JSON.stringify(data));
     Alert.alert("Kaydedildi", "Ayarlar başarıyla kaydedildi.");
+  }
+
+  function triggerBackgroundChange() {
+    if (cooldown) return;
+
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 2000);
+
+    const newVal = true;
+
+    if (onSettingsChanged) { 
+      onSettingsChanged({
+        soundEnabled,
+        vibrationEnabled,
+        darkTheme,
+        notificationsEnabled,
+        backgroundChanged: newVal,
+        adsEnabled,
+      });
+    }
   }
 
   return (
@@ -62,6 +86,12 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
       <View style={styles.settingRow}>
         <Text style={styles.settingLabel}>Ezan Bildirimleri</Text>
         <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
+      </View>
+
+      <View style={styles.settingRow}>
+        <TouchableOpacity onPress={triggerBackgroundChange} disabled={cooldown}>
+          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}>Arka Plan Değiştir</Text>
+        </TouchableOpacity>
       </View>
 
       {/* 

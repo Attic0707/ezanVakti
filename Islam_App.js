@@ -62,7 +62,7 @@ import AboutPage from "./files/AboutPage";
 import HelpPage from "./files/HelpPage";
 import DockBar from "./files/DockBar";
 
-const DEBUG = true;
+const DEBUG = false;
 
 // How notifications behave when the app is foregrounded
 Notifications.setNotificationHandler({
@@ -183,6 +183,7 @@ export default function Islam_App() {
   const [isRamadanNow, setIsRamadanNow] = useState(false);
   const { maybeShowInterstitial } = useInterstitialAds(settings.adsEnabled);
 
+  // check if ramazan
   useEffect(() => {
     async function load() {
       setIsRamadanNow(await isRamadan());
@@ -190,6 +191,7 @@ export default function Islam_App() {
     load();
   }, []);
 
+  // ads config
   useEffect(() => {
     if ( !ADS_ENABLED || !mobileAds || !InterstitialAd || !AdEventType || !INTERSTITIAL_AD_UNIT_ID ) {
       return;
@@ -223,7 +225,6 @@ export default function Islam_App() {
         setSettings(effectiveSettings);
         await requestNotificationPermissions();
         await scheduleDailyNotifications(effectiveSettings);
-        // await fetchRandomVerse();
         const idx = Math.floor(Math.random() * BACKGROUNDS.length);
         setBackgroundSource(BACKGROUNDS[idx]);
       } catch (e) {
@@ -404,6 +405,13 @@ export default function Islam_App() {
       return hijriMonth === 9; // Ramadan = month 9
     } catch (e) {
       return false;
+    }
+  }
+
+  function handleSettingsChanged(data) {
+    if (data.backgroundChanged) {
+      const idx = Math.floor(Math.random() * BACKGROUNDS.length);
+      setBackgroundSource(BACKGROUNDS[idx]);
     }
   }
 
@@ -981,6 +989,10 @@ export default function Islam_App() {
           onSettingsChanged={(newSettings) => {
             setSettings(newSettings);
             scheduleDailyNotifications(newSettings);
+            if (newSettings.backgroundChanged) {
+              const idx = Math.floor(Math.random() * BACKGROUNDS.length);
+              setBackgroundSource(BACKGROUNDS[idx]);
+            }
           }}
         />
       )}
