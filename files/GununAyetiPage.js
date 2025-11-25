@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
     },
     retrieveButton: {
         paddingHorizontal: 0,
+        marginTop:20,
         paddingVertical: 6,
         borderRadius: 16,
         borderWidth: 1,
