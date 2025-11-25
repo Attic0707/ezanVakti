@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Share, } from "react-native";
 import ScaledText from "./ScaledText";
 
@@ -121,7 +121,13 @@ export default function IlhamPage({ onBack }) {
   // Feed item modal state
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const filteredFeed = activeCategory === "tum" ? FEED_ITEMS : FEED_ITEMS.filter((item) => item.category === activeCategory);
+  const filteredFeed = useMemo(
+    () =>
+      activeCategory === "tum"
+        ? FEED_ITEMS
+        : FEED_ITEMS.filter((item) => item.category === activeCategory),
+    [activeCategory]
+  );
 
   const leftColumn = filteredFeed.filter((_, idx) => idx % 2 === 0);
   const rightColumn = filteredFeed.filter((_, idx) => idx % 2 === 1);
@@ -158,6 +164,17 @@ export default function IlhamPage({ onBack }) {
     }));
   }
 
+  function getTypeLabel(type) {
+    switch (type) {
+      case "ayet":
+        return "📖 Ayet";
+      case "hadis":
+        return "📜 Hadis";
+      default:
+        return "✨ İlham Verici Söz";
+    }
+  }
+
   async function shareText(text, titlePrefix = "İlham") {
     try {
       await Share.share({
@@ -189,10 +206,8 @@ export default function IlhamPage({ onBack }) {
           return (
             <TouchableOpacity key={story.id} style={styles.storyCard} activeOpacity={0.8} onPress={() => openStory(index)} >
               <View style={styles.storyInner}>
-                <Text style={styles.storyTitle}>{story.title}</Text>
-                <Text numberOfLines={5} style={styles.storyPreview} >
-                  {story.text}
-                </Text>
+                <ScaledText baseSize={12} style={styles.storyTitle}> {story.title} </ScaledText>
+                <ScaledText numberOfLines={5} baseSize={12} style={styles.storyPreview}> {story.text} </ScaledText>
               </View>
               <View style={styles.storyFooterRow}>
                 <Text style={[styles.storyLikeIcon, liked && styles.storyLikeIconActive]}>
@@ -206,14 +221,14 @@ export default function IlhamPage({ onBack }) {
       </ScrollView>
 
       {/* SECOND ROW: Categories */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={true} style={styles.categoriesRow} contentContainerStyle={{ paddingRight: 8 }} >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow} contentContainerStyle={{ paddingRight: 8 }} >
         {CATEGORIES.map((cat) => {
           const active = cat.key === activeCategory;
           return (
             <TouchableOpacity key={cat.key} style={[styles.categoryChip, active && styles.categoryChipActive]} onPress={() => setActiveCategory(cat.key)}  >
-              <Text style={[ styles.categoryChipText, active && styles.categoryChipTextActive, ]} >
+              <ScaledText baseSize={12} style={[ styles.categoryChipText, active && styles.categoryChipTextActive, ]} >
                 {cat.label}
-              </Text>
+              </ScaledText>
             </TouchableOpacity>
           );
         })}
@@ -225,7 +240,7 @@ export default function IlhamPage({ onBack }) {
           {leftColumn.map((item) => (
             <TouchableOpacity key={item.id} style={styles.feedCard} activeOpacity={0.9} onPress={() => setSelectedItem(item)} >
               <ScaledText baseSize={14} style={styles.feedType}>
-                {item.type === "ayet" ? "📖 Ayet" : item.type === "hadis" ? "📜 Hadis"  : "✨ Söz"}
+                {getTypeLabel(item.type)}
               </ScaledText>
               <ScaledText baseSize={14} style={styles.feedTitle}>
                 {item.title}
@@ -253,67 +268,36 @@ export default function IlhamPage({ onBack }) {
       </ScrollView>
 
       {/* STORY MODAL */}
-      <Modal
-        visible={storyModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={closeStory}
-      >
+      <Modal visible={storyModalVisible} transparent animationType="fade" onRequestClose={closeStory} >
         <View style={styles.storyModalOverlay}>
           <View style={styles.storyModalCard}>
             {STORY_ITEMS[activeStoryIndex] && (
               <>
                 <Text style={styles.storyModalCategory}>
-                  {CATEGORIES.find(
-                    (c) => c.key === STORY_ITEMS[activeStoryIndex].category
-                  )?.label || "İlham"}
+                  {CATEGORIES.find( (c) => c.key === STORY_ITEMS[activeStoryIndex].category )?.label || "İlham"}
                 </Text>
                 <Text style={styles.storyModalTitle}>
                   {STORY_ITEMS[activeStoryIndex].title}
                 </Text>
-                <ScrollView
-                  style={{ marginTop: 8 }}
-                  showsVerticalScrollIndicator={false}
-                >
+                <ScrollView style={{ marginTop: 8 }} showsVerticalScrollIndicator={false} >
                   <Text style={styles.storyModalText}>
                     {STORY_ITEMS[activeStoryIndex].text}
                   </Text>
                 </ScrollView>
 
                 <View style={styles.storyModalButtonsRow}>
-                  <TouchableOpacity
-                    onPress={toggleLikeCurrentStory}
-                    style={styles.storyModalButton}
-                  >
+                  <TouchableOpacity onPress={toggleLikeCurrentStory} style={styles.storyModalButton} >
                     <Text style={styles.storyModalButtonText}>
-                      {likedStories[STORY_ITEMS[activeStoryIndex].id]
-                        ? "♥ Beğenildi"
-                        : "♡ Beğen"}
-                    </Text>
+                      {likedStories[STORY_ITEMS[activeStoryIndex].id] ? "♥ Beğenildi" : "♡ Beğen"} </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() =>
-                      shareText(
-                        STORY_ITEMS[activeStoryIndex].text,
-                        STORY_ITEMS[activeStoryIndex].title
-                      )
-                    }
-                    style={styles.storyModalButton}
-                  >
+                  <TouchableOpacity onPress={() => shareText( STORY_ITEMS[activeStoryIndex].text, STORY_ITEMS[activeStoryIndex].title ) } style={styles.storyModalButton} >
                     <Text style={styles.storyModalButtonText}>↗ Paylaş</Text>
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.storyModalFooterNav}>
-                  <TouchableOpacity
-                    onPress={handlePrevStory}
-                    disabled={activeStoryIndex === 0}
-                    style={[
-                      styles.storyNavBtn,
-                      activeStoryIndex === 0 && styles.storyNavBtnDisabled,
-                    ]}
-                  >
+                  <TouchableOpacity onPress={handlePrevStory} disabled={activeStoryIndex === 0} style={[ styles.storyNavBtn, activeStoryIndex === 0 && styles.storyNavBtnDisabled, ]} >
                     <Text style={styles.storyNavText}>Önceki</Text>
                   </TouchableOpacity>
 
@@ -321,15 +305,8 @@ export default function IlhamPage({ onBack }) {
                     <Text style={styles.storyNavText}>Kapat</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={handleNextStory}
-                    style={styles.storyNavBtn}
-                  >
-                    <Text style={styles.storyNavText}>
-                      {activeStoryIndex === STORY_ITEMS.length - 1
-                        ? "Bitir"
-                        : "Sonraki"}
-                    </Text>
+                  <TouchableOpacity onPress={handleNextStory} style={styles.storyNavBtn}  >
+                    <Text style={styles.storyNavText}> {activeStoryIndex === STORY_ITEMS.length - 1 ? "Bitir" : "Sonraki"} </Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -339,54 +316,25 @@ export default function IlhamPage({ onBack }) {
       </Modal>
 
       {/* FEED ITEM MODAL */}
-      <Modal
-        visible={!!selectedItem}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setSelectedItem(null)}
-      >
+      <Modal visible={!!selectedItem} transparent animationType="fade" onRequestClose={() => setSelectedItem(null)} >
         <View style={styles.itemModalOverlay}>
           <View style={styles.itemModalCard}>
             {selectedItem && (
               <>
-                <Text style={styles.itemModalType}>
-                  {selectedItem.type === "ayet"
-                    ? "📖 Ayet"
-                    : selectedItem.type === "hadis"
-                    ? "📜 Hadis"
-                    : "✨ İlham Verici Söz"}
-                </Text>
+                <Text style={styles.itemModalType}> {getTypeLabel(selectedItem.type)} </Text>
                 <Text style={styles.itemModalTitle}>{selectedItem.title}</Text>
-                {selectedItem.ref ? (
-                  <Text style={styles.itemModalRef}>{selectedItem.ref}</Text>
-                ) : null}
+                {selectedItem.ref ? ( <Text style={styles.itemModalRef}>{selectedItem.ref}</Text> ) : null}
 
-                <ScrollView
-                  style={{ marginTop: 8 }}
-                  showsVerticalScrollIndicator={false}
-                >
+                <ScrollView style={{ marginTop: 8 }} showsVerticalScrollIndicator={false} >
                   <Text style={styles.itemModalText}>{selectedItem.text}</Text>
                 </ScrollView>
 
                 <View style={styles.itemModalButtonsRow}>
-                  <TouchableOpacity
-                    style={styles.itemModalButton}
-                    onPress={() => setSelectedItem(null)}
-                  >
+                  <TouchableOpacity style={styles.itemModalButton} onPress={() => setSelectedItem(null)} >
                     <Text style={styles.itemModalButtonText}>Kapat</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.itemModalButton}
-                    onPress={() =>
-                      shareText(
-                        `${selectedItem.title}\n${selectedItem.ref || ""}\n\n${
-                          selectedItem.text
-                        }`,
-                        "İlham"
-                      )
-                    }
-                  >
+                  <TouchableOpacity style={styles.itemModalButton} onPress={() => shareText( `${selectedItem.title}\n${selectedItem.ref || ""}\n\n${ selectedItem.text }`, "İlham" )  } >
                     <Text style={styles.itemModalButtonText}>↗ Paylaş</Text>
                   </TouchableOpacity>
                 </View>
@@ -470,10 +418,12 @@ const styles = StyleSheet.create({
 
   // Categories
   categoriesRow: {
-    maxHeight: 40
+    maxHeight: 44,
+    marginTop: 4,
+    marginBottom: 4,
   },
   categoryChip: {
-    maxHeight: 36,
+    height: 36,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 18,
@@ -481,6 +431,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
+    justifyContent: "center",
   },
   categoryChipActive: {
     backgroundColor: "#ffdd55",
@@ -489,6 +440,7 @@ const styles = StyleSheet.create({
   categoryChipText: {
     fontSize: 13,
     color: "#e0e6f0",
+    textAlign: "center",
   },
   categoryChipTextActive: {
     color: "#333333",
