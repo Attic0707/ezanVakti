@@ -665,6 +665,56 @@ const FEED_ITEMS = [
     text: "Keder, zaferden önce gelen sabırdır.",
   }
 ];
+const FeedGrid = React.memo(function FeedGrid({ filteredFeed, onItemPress }) {
+  const leftColumn = filteredFeed.filter((_, idx) => idx % 2 === 0);
+  const rightColumn = filteredFeed.filter((_, idx) => idx % 2 === 1);
+
+  return (
+    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={styles.feedContainer} >
+      <View style={styles.feedColumn}>
+        {leftColumn.map((item) => (
+          <TouchableOpacity key={item.id} style={styles.feedCard} activeOpacity={0.9} onPress={() => onItemPress(item)} >
+            <ScaledText baseSize={14} style={styles.feedType}>
+              {item.type === "ayet" ? "📖 Ayet" : item.type === "hadis" ? "📜 Hadis" : "✨ Söz"}
+            </ScaledText>
+            <ScaledText baseSize={14} style={styles.feedTitle}>
+              {item.title}
+            </ScaledText>
+            {item.ref ? (
+              <ScaledText baseSize={12} style={styles.feedRef}>
+                {item.ref}
+              </ScaledText>
+            ) : null}
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.feedColumn}>
+        {rightColumn.map((item) => (
+          <TouchableOpacity key={item.id} tyle={styles.feedCard} activeOpacity={0.9} onPress={() => onItemPress(item)} >
+            <ScaledText baseSize={14} style={styles.feedType}>
+              {item.type === "ayet"
+                ? "📖 Ayet"
+                : item.type === "hadis"
+                ? "📜 Hadis"
+                : "✨ Söz"}
+            </ScaledText>
+            <ScaledText baseSize={14} style={styles.feedTitle}>
+              {item.title}
+            </ScaledText>
+            {item.ref ? (
+              <ScaledText baseSize={12} style={styles.feedRef}>
+                {item.ref}
+              </ScaledText>
+            ) : null}
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
+});
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -675,7 +725,8 @@ export default function IlhamPage({ onBack }) {
   const [storyModalVisible, setStoryModalVisible] = useState(false);
   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
   const [likedStories, setLikedStories] = useState({}); // {id: true/false}
-  const [backgroundSource, setBackgroundSource] = useState(STORY_PICS[0]);
+
+  const backgroundSource = STORY_PICS.length > 0 ? STORY_PICS[activeStoryIndex % STORY_PICS.length] : undefined;
 
   // Feed item modal state
   const [selectedItem, setSelectedItem] = useState(null);
@@ -694,8 +745,6 @@ export default function IlhamPage({ onBack }) {
   function openStory(index) {
     setActiveStoryIndex(index);
     setStoryModalVisible(true);
-    const pic = STORY_PICS[index % STORY_PICS.length];
-    setBackgroundSource(pic);
   }
 
   function closeStory() {
@@ -705,14 +754,7 @@ export default function IlhamPage({ onBack }) {
   function handleNextStory() {
     setActiveStoryIndex((prev) => {
       if (prev < STORY_ITEMS.length - 1) {
-        const nextIndex = prev + 1;
-
-        if (STORY_PICS.length > 0) {
-          const pic = STORY_PICS[nextIndex % STORY_PICS.length];
-          setBackgroundSource(pic);
-        }
-
-        return nextIndex;
+        return prev + 1;
       } else {
         setStoryModalVisible(false);
         return prev;
@@ -723,14 +765,7 @@ export default function IlhamPage({ onBack }) {
   function handlePrevStory() {
     setActiveStoryIndex((prev) => {
       if (prev > 0) {
-        const prevIndex = prev - 1;
-
-        if (STORY_PICS.length > 0) {
-          const pic = STORY_PICS[prevIndex % STORY_PICS.length];
-          setBackgroundSource(pic);
-        }
-
-        return prevIndex;
+        return prev - 1;
       }
       return prev;
     });
@@ -808,37 +843,7 @@ export default function IlhamPage({ onBack }) {
       </ScrollView>
 
       {/* MAIN: Pinterest-style feed */}
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={styles.feedContainer} >
-        <View style={styles.feedColumn}>
-          {leftColumn.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.feedCard} activeOpacity={0.9} onPress={() => setSelectedItem(item)} >
-              <ScaledText baseSize={14} style={styles.feedType}>
-                {getTypeLabel(item.type)}
-              </ScaledText>
-              <ScaledText baseSize={14} style={styles.feedTitle}>
-                {item.title}
-              </ScaledText>
-              {item.ref ? ( <ScaledText baseSize={12} style={styles.feedRef}> {item.ref} </ScaledText> ) : null}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.feedColumn}>
-          {rightColumn.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.feedCard} activeOpacity={0.9} onPress={() => setSelectedItem(item)} >
-              <ScaledText baseSize={14} style={styles.feedType}>
-                {item.type === "ayet" ? "📖 Ayet" : item.type === "hadis" ? "📜 Hadis" : "✨ Söz"}
-              </ScaledText>
-              <ScaledText baseSize={14} style={styles.feedTitle}>
-                {item.title}
-              </ScaledText>
-              {item.ref ? ( <ScaledText baseSize={12} style={styles.feedRef}> {item.ref} </ScaledText> ) : null}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={{ height: 40 }} />
-      </ScrollView>
+    <FeedGrid filteredFeed={filteredFeed} onItemPress={setSelectedItem}  />
 
       {/* STORY MODAL */}
       <Modal visible={storyModalVisible} transparent animationType="fade" onRequestClose={closeStory} >
