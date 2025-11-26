@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Share, ImageBackground, TouchableWithoutFeedback, Dimensions, } from "react-native";
+import React, { useState, useMemo, useRef} from "react";
+import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Share, ImageBackground, TouchableWithoutFeedback, Dimensions, PanResponder} from "react-native";
 import ScaledText from "./ScaledText";
+import * as Haptics from "expo-haptics";
+const DEBUG = false;
 
 const STORY_PICS = [
   require("../assets/images/ilham_pics/ilham1.jpg"),
@@ -9,7 +11,6 @@ const STORY_PICS = [
   require("../assets/images/ilham_pics/ilham4.jpg"),
   require("../assets/images/ilham_pics/ilham5.jpg"),
 ];
-const DEBUG = false;
 
 const STORY_ITEMS = [
   {
@@ -665,6 +666,7 @@ const FEED_ITEMS = [
     text: "Keder, zaferden önce gelen sabırdır.",
   }
 ];
+
 const FeedGrid = React.memo(function FeedGrid({ filteredFeed, onItemPress }) {
   const leftColumn = filteredFeed.filter((_, idx) => idx % 2 === 0);
   const rightColumn = filteredFeed.filter((_, idx) => idx % 2 === 1);
@@ -691,13 +693,9 @@ const FeedGrid = React.memo(function FeedGrid({ filteredFeed, onItemPress }) {
 
       <View style={styles.feedColumn}>
         {rightColumn.map((item) => (
-          <TouchableOpacity key={item.id} tyle={styles.feedCard} activeOpacity={0.9} onPress={() => onItemPress(item)} >
+          <TouchableOpacity key={item.id} style={styles.feedCard} activeOpacity={0.9} onPress={() => onItemPress(item)} >
             <ScaledText baseSize={14} style={styles.feedType}>
-              {item.type === "ayet"
-                ? "📖 Ayet"
-                : item.type === "hadis"
-                ? "📜 Hadis"
-                : "✨ Söz"}
+              {item.type === "ayet" ? "📖 Ayet" : item.type === "hadis" ? "📜 Hadis"  : "✨ Söz"}
             </ScaledText>
             <ScaledText baseSize={14} style={styles.feedTitle}>
               {item.title}
@@ -739,16 +737,29 @@ export default function IlhamPage({ onBack }) {
     feedBackgroundSource = STORY_PICS[safeIndex % STORY_PICS.length];
   }
 
-  const filteredFeed = useMemo(
-    () =>
-      activeCategory === "tum"
-        ? FEED_ITEMS
-        : FEED_ITEMS.filter((item) => item.category === activeCategory),
-    [activeCategory]
-  );
+  const filteredFeed = useMemo( () => activeCategory === "tum" ? FEED_ITEMS  : FEED_ITEMS.filter((item) => item.category === activeCategory), [activeCategory] );
 
-  const leftColumn = filteredFeed.filter((_, idx) => idx % 2 === 0);
-  const rightColumn = filteredFeed.filter((_, idx) => idx % 2 === 1);
+  // Haptics helper
+  function triggerStoryHaptics() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  }
+
+  // Swipe handler (left/right)
+  const storyPanResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        Math.abs(gesture.dx) > 20 && Math.abs(gesture.dy) < 20,
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx < -40) {
+          // swipe left → next
+          handleNextStory();
+        } else if (gesture.dx > 40) {
+          // swipe right → prev
+          handlePrevStory();
+        }
+      },
+    })
+  ).current;
 
   function openStory(index) {
     setActiveStoryIndex(index);
@@ -766,7 +777,9 @@ export default function IlhamPage({ onBack }) {
   function handleNextStory() {
     setActiveStoryIndex((prev) => {
       if (prev < STORY_ITEMS.length - 1) {
-        return prev + 1;
+        const nextIndex = prev + 1;
+        triggerStoryHaptics();
+        return nextIndex;
       } else {
         setStoryModalVisible(false);
         return prev;
@@ -777,7 +790,9 @@ export default function IlhamPage({ onBack }) {
   function handlePrevStory() {
     setActiveStoryIndex((prev) => {
       if (prev > 0) {
-        return prev - 1;
+        const prevIndex = prev - 1;
+        triggerStoryHaptics();
+        return prevIndex;
       }
       return prev;
     });
@@ -830,11 +845,10 @@ export default function IlhamPage({ onBack }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={ styles.storiesRow } contentContainerStyle={{ paddingRight: 8 }} >
         {STORY_ITEMS.map((story, index) => {
           const liked = likedStories[story.id];
+          const bg = STORY_PICS.length > 0 ? STORY_PICS[index % STORY_PICS.length] : null;
           return (
-            <TouchableOpacity key={story.id} style={styles.storyCirle} activeOpacity={0.8} onPress={() => openStory(index)} >
-              <View>
-                <ScaledText baseSize={12} style={styles.storyTitle}> {story.title} </ScaledText>
-              </View>
+            <TouchableOpacity key={story.id} activeOpacity={0.8} onPress={() => openStory(index)} >
+              <ImageBackground source={bg} style={styles.storyCircle} imageStyle={styles.storyCircleImage} resizeMode="cover"> <Text>.</Text> </ImageBackground>
             </TouchableOpacity>
           );
         })}
@@ -867,7 +881,14 @@ export default function IlhamPage({ onBack }) {
 
           {/* Actual popup card – NOT inside the background touchable */}
           <ImageBackground source={backgroundSource} style={styles.storyModalCardBackground} imageStyle={styles.storyModalCardImage} resizeMode="cover" >
-            <View style={styles.storyModalCardInner}>
+
+            {/* --- LEFT INVISIBLE TAP ZONE --- */}
+            {activeStoryIndex > 0 && ( <TouchableOpacity onPress={handlePrevStory} style={styles.storyLeftZone} activeOpacity={1} />  )}
+
+            {/* --- RIGHT INVISIBLE TAP ZONE --- */}
+            <TouchableOpacity onPress={handleNextStory} style={styles.storyRightZone} activeOpacity={1} />
+
+            <View style={styles.storyModalCardInner} {...storyPanResponder.panHandlers} >
               {STORY_ITEMS[activeStoryIndex] && (
                 <>
                   {/* Category */}
@@ -896,16 +917,6 @@ export default function IlhamPage({ onBack }) {
 
                     <TouchableOpacity onPress={() => shareText( STORY_ITEMS[activeStoryIndex].text, STORY_ITEMS[activeStoryIndex].title )} style={styles.storyModalButton} >
                       <Text style={styles.storyModalButtonText}>↗ Paylaş</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.storyModalFooterNav}>
-                    <TouchableOpacity onPress={handlePrevStory} disabled={activeStoryIndex === 0} style={[ styles.storyNavBtn, activeStoryIndex === 0 && styles.storyNavBtnDisabled, ]} >
-                      <Text style={styles.storyNavText}> ← </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={handleNextStory} style={styles.storyNavBtn} >
-                      <Text style={styles.storyNavText}> {activeStoryIndex === STORY_ITEMS.length - 1 ? "Bitir" : "→" } </Text>
                     </TouchableOpacity>
                   </View>
                 </>
@@ -978,7 +989,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     maxHeight: 120,
   },
-  storyCirle: {
+  storyCircle: {
     width: 90,
     height: 90,
     borderRadius: 50,
@@ -990,13 +1001,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems:'center',
   },
-  storyTitle: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#ffdd55",
-    marginBottom: 4,
-    textAlign: "center",
-  },
+  storyCircleImage: {
+    borderRadius: 45,
+  },  
 
   // Categories
   categoriesRow: {
@@ -1126,20 +1133,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 8,
   },
-  storyNavBtn: {
-    flex: 1,
-    marginHorizontal: 4,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    alignItems: "center",
+  storyLeftZone: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: "25%",          // first quarter of the modal
+    zIndex: 20,
   },
-  storyNavBtnDisabled: {
-    opacity: 0.3,
-  },
-  storyNavText: {
-    color: "#ffffff",
-    fontSize: 13,
+
+  storyRightZone: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: "25%",          // last quarter of the modal
+    zIndex: 20,
   },
 
   // Item modal
@@ -1157,6 +1166,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderColor: "rgba(255,255,255,0.2)",
     overflow: "hidden",  
+    flex: 1,
+    justifyContent: "space-between",  
   },
   itemModalCardImage: {
     borderRadius: 20,
@@ -1185,7 +1196,6 @@ const styles = StyleSheet.create({
   itemModalButtonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
   },
   itemModalButton: {
     flex: 1,
