@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Alert, } from "react-native";
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import ScaledText from "./ScaledText";
 
 export default function NamazSureleriPage({ onBack }) {
-  const [currentPlayingKey, setCurrentPlayingKey] = useState(null);
-  const player = useAudioPlayer(null);
-  const status = useAudioPlayerStatus(player);
 
   // ---- DATA ----
   const SECTIONS = [
@@ -30,7 +26,6 @@ Mâliki yevmiddîn.
 İyyâke na‘budu ve iyyâke neste‘în.
 İhdinessırâtel müstakîm.
 Sırâtallezîne en‘amte aleyhim ğayril mağdûbi aleyhim ve leddâllîn.`,
-          audio: require("../assets/sounds/fatiha.mp3"),
         },
         {
           key: "ikhlas",
@@ -45,7 +40,6 @@ Kul huvallâhu ehad.
 Allâhussamed.
 Lem yelid ve lem yûled.
 Ve lem yekun lehû kufuven ehad.`,
-          audio: require("../assets/sounds/ihlas.mp3"),
         },
         {
           key: "felak",
@@ -62,7 +56,6 @@ Min şerri mâ halak.
 Ve min şerri ğâsikın izâ vekab.
 Ve min şerrin-neffâsâti fil ‘ukad.
 Ve min şerri hâsidin izâ hased.`,
-          audio: require("../assets/sounds/felak.mp3"),
         },
         {
           key: "nas",
@@ -81,7 +74,6 @@ Melikin-nâs.
 Min şerril-vesvâsil-hannâs.
 Ellezî yuvesvisu fî sudûrin-nâs.
 Minel cinneti ven-nâs.`,
-          audio: require("../assets/sounds/nas.mp3"),
         },
         {
           key: "kevser",
@@ -94,7 +86,6 @@ Minel cinneti ven-nâs.`,
 İnnâ a‘taynâkel kevser.
 Fe-salli li rabbike venhar.
 İnne şâni’eke huvel ebter.`,
-          audio: require("../assets/sounds/kevser.mp3"),
         },
       ],
     },
@@ -114,7 +105,6 @@ Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh.
 Esselâmü aleynâ ve alâ ibâdillâhissâlihîn.
 Eşhedü en lâ ilâhe illallâh
 ve eşhedü enne Muhammeden abdühû ve resûlüh.`,
-          audio: require("../assets/sounds/ettehiyyatu.mp3"),
         },
         {
           key: "salli",
@@ -125,7 +115,6 @@ ve eşhedü enne Muhammeden abdühû ve resûlüh.`,
           roman: `Allâhümme salli alâ Muhammedin ve alâ âli Muhammed,
 kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm,
 inneke hamîdün mecîd.`,
-          audio: require("../assets/sounds/salli.mp3"),
         },
         {
           key: "barik",
@@ -138,7 +127,6 @@ inneke hamîdün mecîd.`,
 Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed,
 kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm,
 inneke hamîdün mecîd.`,
-          audio: require("../assets/sounds/barik.mp3"),
         },
         {
           key: "rabbenagfirli",
@@ -152,57 +140,11 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
     },
   ];
 
-  async function stopCurrentSound() {
-    try {
-      if (!player) return;
-
-      player.pause();
-      await player.seekTo(0);
-    } catch (e) {
-      console.log("stopCurrentSound error", e);
-    } finally {
-      setCurrentPlayingKey(null);
-    }
-  }
-
-  async function handlePlayPress(item) {
-    try {
-      if (currentPlayingKey === item.key && status?.playing) {
-        await stopCurrentSound();
-        return;
-      }
-
-      if (!item.audio) {
-        Alert.alert("Ses bulunamadı", "Bu okuma için ses dosyası eklenmemiş.");
-        return;
-      }
-
-      await stopCurrentSound();
-
-      player.replace(item.audio);
-
-      setCurrentPlayingKey(item.key);
-      player.play();
-    } catch (e) {
-      console.log("Audio play error:", e);
-      Alert.alert("Hata", "Ses oynatılırken bir sorun oluştu.");
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      try {
-        player.remove();
-      } catch (e) {
-        console.log("player remove error", e);
-      }
-    };
-  }, [player]);
 
   return (
     <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]} >
       {/* Back button */}
-      <TouchableOpacity onPress={async () => { await stopCurrentSound(); onBack(); }} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
+      <TouchableOpacity onPress={{ onBack }} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -214,21 +156,12 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
             <Text style={styles.sectionTitle}>{section.title}</Text>
 
             {section.items.map((item) => {
-              const isPlaying =
-                currentPlayingKey === item.key && status?.playing;
-
               return (
                 <View key={item.key} style={styles.card}>
                   <View style={styles.cardHeaderRow}>
                     <ScaledText baseSize={16} style={styles.surahName}>
                       {item.name}
                     </ScaledText>
-
-                    <TouchableOpacity onPress={() => handlePlayPress(item)} style={[ styles.audioButton, isPlaying && styles.audioButtonActive, ]} >
-                      <Text style={[ styles.audioButtonText, isPlaying && styles.audioButtonTextActive, ]} >
-                        {isPlaying ? "⏸ Durdur" : "▶ Dinle"}
-                      </Text>
-                    </TouchableOpacity>
                   </View>
 
                   <ScaledText baseSize={20} style={styles.surahArabic}>{item.arabic}</ScaledText>
