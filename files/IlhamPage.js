@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Share, ImageBackground, TouchableWithoutFeedback, } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Share, ImageBackground, TouchableWithoutFeedback, Dimensions, } from "react-native";
 import ScaledText from "./ScaledText";
 
 const STORY_PICS = [
@@ -666,6 +666,8 @@ const FEED_ITEMS = [
   }
 ];
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
 export default function IlhamPage({ onBack }) {
   const [activeCategory, setActiveCategory] = useState("tum");
 
@@ -673,7 +675,7 @@ export default function IlhamPage({ onBack }) {
   const [storyModalVisible, setStoryModalVisible] = useState(false);
   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
   const [likedStories, setLikedStories] = useState({}); // {id: true/false}
-  const [backgroundSource, setBackgroundSource] = useState();
+  const [backgroundSource, setBackgroundSource] = useState(STORY_PICS[0]);
 
   // Feed item modal state
   const [selectedItem, setSelectedItem] = useState(null);
@@ -692,8 +694,8 @@ export default function IlhamPage({ onBack }) {
   function openStory(index) {
     setActiveStoryIndex(index);
     setStoryModalVisible(true);
-    const pic = STORY_PICS[index % STORY_PICS.length]; 
-    setBackgroundSource(STORY_PICS[pic]);
+    const pic = STORY_PICS[index % STORY_PICS.length];
+    setBackgroundSource(pic);
   }
 
   function closeStory() {
@@ -701,18 +703,37 @@ export default function IlhamPage({ onBack }) {
   }
 
   function handleNextStory() {
-    if (activeStoryIndex < STORY_ITEMS.length - 1) {
-      setActiveStoryIndex((prev) => prev + 1);
-    } else {
-      // last story -> close
-      setStoryModalVisible(false);
-    }
+    setActiveStoryIndex((prev) => {
+      if (prev < STORY_ITEMS.length - 1) {
+        const nextIndex = prev + 1;
+
+        if (STORY_PICS.length > 0) {
+          const pic = STORY_PICS[nextIndex % STORY_PICS.length];
+          setBackgroundSource(pic);
+        }
+
+        return nextIndex;
+      } else {
+        setStoryModalVisible(false);
+        return prev;
+      }
+    });
   }
 
   function handlePrevStory() {
-    if (activeStoryIndex > 0) {
-      setActiveStoryIndex((prev) => prev - 1);
-    }
+    setActiveStoryIndex((prev) => {
+      if (prev > 0) {
+        const prevIndex = prev - 1;
+
+        if (STORY_PICS.length > 0) {
+          const pic = STORY_PICS[prevIndex % STORY_PICS.length];
+          setBackgroundSource(pic);
+        }
+
+        return prevIndex;
+      }
+      return prev;
+    });
   }
 
   function toggleLikeCurrentStory() {
@@ -763,7 +784,7 @@ export default function IlhamPage({ onBack }) {
         {STORY_ITEMS.map((story, index) => {
           const liked = likedStories[story.id];
           return (
-            <TouchableOpacity key={story.id} style={styles.storyCard} activeOpacity={0.8} onPress={() => openStory(index)} >
+            <TouchableOpacity key={story.id} style={styles.storyCirle} activeOpacity={0.8} onPress={() => openStory(index)} >
               <View>
                 <ScaledText baseSize={12} style={styles.storyTitle}> {story.title} </ScaledText>
               </View>
@@ -832,14 +853,17 @@ export default function IlhamPage({ onBack }) {
             <View style={styles.storyModalCardInner}>
               {STORY_ITEMS[activeStoryIndex] && (
                 <>
+                  {/* Category */}
                   <Text style={styles.storyModalCategory}>
                     {CATEGORIES.find( (c) => c.key === STORY_ITEMS[activeStoryIndex].category)?.label || "İlham"}
                   </Text>
 
+                  {/* Title */}
                   <Text style={styles.storyModalTitle}>
                     {STORY_ITEMS[activeStoryIndex].title}
                   </Text>
 
+                  {/* Text */}
                   <ScrollView style={{ marginTop: 8 }} showsVerticalScrollIndicator={false} >
                     <Text style={styles.storyModalText}>
                       {STORY_ITEMS[activeStoryIndex].text}
@@ -935,9 +959,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
     maxHeight: 120,
   },
-  storyCard: {
-    width: 100,
-    height: 100,
+  storyCirle: {
+    width: 90,
+    height: 90,
     borderRadius: 50,
     marginRight: 8,
     padding: 8,
@@ -1041,8 +1065,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   storyModalCardBackground: {
-    width: "100%",
-    height: "55%",
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT * 0.55,
     borderRadius: 20,
     overflow: "hidden", // must-have!
   },
@@ -1052,15 +1076,10 @@ const styles = StyleSheet.create({
   storyModalCardInner: {
     flex: 1,
     padding: 16,
-    backgroundColor: "rgba(10,10,15,0.85)", // translucent so image shows through
+    backgroundColor: "rgba(10, 10, 15, 0.34)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",
   },
-  storyModalContent: {
-  flex: 1,
-  padding: 16,
-  backgroundColor: "rgba(202, 202, 202, 0.13)", // semi-dark layer to make text readable
-},
   storyModalText: {
     fontSize: 15,
     color: "#e5e5f0",
