@@ -24,14 +24,11 @@ import NamazTakipPage from "./files/NamazTakipPage";
 import YasinPage from "./files/YasinPage";
 import TesbihPage from "./files/TesbihPage";
 import KazaTakipPage from "./files/KazaTakipPage";
-import EzanDinlePage from "./files/EzanDinlePage";
 import NearbyMosquesPage from "./files/NearbyMosquesPage";
 import RuyetPage from "./files/RuyetPage";
 import HadisPage from "./files/HadisPage";
 import VedaPage from "./files/VedaPage";
 import OtuzIkiFarzPage from "./files/OtuzIkiFarzPage";
-import DiniYayinPage from "./files/DiniYayinPage";
-import KabeCanliPage from "./files/KabeCanliPage";
 import EsmaPage from "./files/EsmaPage";
 import IlmihalPage from "./files/IlmihalPage";
 import QuranPage from "./files/QuranPage";
@@ -53,7 +50,6 @@ import DiniSozlukPage from "./files/DiniSozlukPage";
 import IsimlerSozlukPage from "./files/IsimlerSozlukPage";
 import CevsanPage from "./files/CevsanPage";
 import IslamQuestionAnswerPage from "./files/IslamQuestionAnswerPage";
-import CumaHutbePage from "./files/CumaHutbePage";
 import NamazinTurkcesiPage from "./files/NamazinTurkcesiPage";
 import IslamQuizPage from "./files/IslamQuizPage";
 import HacUmreRehberPage from "./files/HacUmreRehberPage";
@@ -72,9 +68,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-// Sidebar config
-const SIDEBAR_WIDTH = 260;
 
 const IS_EXPO_GO = Constants.appOwnership === "expo";
 const ADS_ENABLED = !IS_EXPO_GO;
@@ -114,14 +107,11 @@ const MENU_ITEMS = [
   { key: "yasin_suresi",        label: "Yasin Suresi Oku / Dinle" },
   { key: "tesbih",              label: "Dijital Tesbih" },
   { key: "kaza_takip",          label: "Kaza Namazı Takibi" },
-  { key: "ezan_dinle",          label: "Ezan Dinleme" },
   { key: "yakin_camiler",       label: "Yakındaki Mescitler" },
   { key: "ruyet",               label: "Hilal ve Rü’yet Bilgileri" },
   { key: "kirk_hadis",          label: "Kırk Hadis Seçkisi" },
   { key: "veda_hutbesi",        label: "Veda Hutbesi Metni" },
   { key: "otuziki_farz",        label: "32 Farz Listesi" },
-  { key: "dini_yayin",          label: "Dini Yayın ve Kitaplar" },
-  { key: "kabeden_canli",       label: "Kâbe Canlı Yayın" },
   { key: "esmaul_husna",        label: "Esma’ül Hüsna ile Zikir" },
   { key: "islam_ilmihali",      label: "İlmihal Rehberi" },
   { key: "kurani_kerim",        label: "Kur’an-ı Kerim Tam Metin" },
@@ -144,9 +134,8 @@ const MENU_ITEMS = [
   { key: "isimler_sozlugu",     label: "İslami İsimler ve Anlamları" },
   { key: "cevsan",              label: "Cevşen Duası" },
   { key: "islami_soru_cevap",   label: "Sor & Öğren (Soru–Cevap)" },
-  { key: "cuma_hutbeleri",      label: "Güncel Cuma Hutbeleri" },
   { key: "namazin_turkcesi",    label: "Namazın Türkçe Okunuşu" },
-  { key: "islam_quiz",          label: "İslami Bilgi Yarışması" },
+  { key: "islam_quiz",          label: "İslami Soru Bankası" },
   { key: "hac_umre_rehberi",    label: "Hac & Umre Hazırlık" },
   { key: "settings",            label: "Ayarlar" },
   { key: "about",               label: "Uygulama Hakkında" },
@@ -172,10 +161,7 @@ export default function Islam_App() {
   const [loading, setLoading] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
   const [prayerTimes, setPrayerTimes] = useState([]);
-  const [verseTurkish, setVerseTurkish] = useState("");
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const sidebarAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const [activePage, setActivePage] = useState("home");
 
   const [isAppLibraryOpen, setIsAppLibraryOpen] = useState(false);
@@ -411,97 +397,11 @@ export default function Islam_App() {
     }
   }
 
-  function openSidebar() {
-    Animated.timing(sidebarAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => setIsSidebarOpen(true));
-  }
-
-  function closeSidebar() {
-    Animated.timing(sidebarAnim, {
-      toValue: -SIDEBAR_WIDTH,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => setIsSidebarOpen(false));
-  }
-
-  function toggleSidebar(isLibOpened) {
-    if (isLibOpened) closeSidebar();
-    else if (isSidebarOpen) closeSidebar();
-    else openSidebar();
-  }
-
   function toggleAppLibrary() {
     setIsAppLibraryOpen((prev) => !prev);
   }
 
-  const panResponder = useRef(
-    PanResponder.create({
-      // When sidebar is CLOSED: grab gestures that start near left edge
-      onStartShouldSetPanResponder: (evt, gestureState) => {
-        const x = evt.nativeEvent.pageX;
-
-        if (!isSidebarOpen && x <= 40) {
-          // touch started in the first 40px from the left
-          return true;
-        }
-        return false;
-      },
-
-      // When sidebar is OPEN: grab horizontal drags
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        const { dx, dy } = gestureState;
-
-        if (
-          isSidebarOpen &&
-          Math.abs(dx) > Math.abs(dy) &&
-          Math.abs(dx) > 5
-        ) {
-          return true;
-        }
-
-        return false;
-      },
-
-      onPanResponderMove: (evt, gestureState) => {
-        const { dx } = gestureState;
-
-        if (!isSidebarOpen) {
-          // Opening: from -SIDEBAR_WIDTH → 0
-          const newX = Math.min(0, -SIDEBAR_WIDTH + dx);
-          sidebarAnim.setValue(newX);
-        } else {
-          // Closing: from 0 → -SIDEBAR_WIDTH
-          const newX = Math.max(-SIDEBAR_WIDTH, dx);
-          sidebarAnim.setValue(newX);
-        }
-      },
-
-      onPanResponderRelease: (evt, gestureState) => {
-        const { dx, vx } = gestureState;
-
-        if (!isSidebarOpen) {
-          // Decide open vs snap back when closed
-          if (dx > SIDEBAR_WIDTH / 3 || vx > 0.5) {
-            openSidebar();
-          } else {
-            closeSidebar();
-          }
-        } else {
-          // Decide close vs stay open when open
-          if (dx < -SIDEBAR_WIDTH / 3 || vx < -0.5) {
-            closeSidebar();
-          } else {
-            openSidebar();
-          }
-        }
-      },
-    })
-  ).current;
-
-  function handleMenuItemPress(key, isLibOpened) {
+  function handleMenuItemPress(key) {
     const bigPages = [ "yasin_suresi", "islam_ilmihali", "peygamberler_tarihi", "dort_halife", "sahabelerin_hayati", "mesnevi", "islam_quiz",  "hadis_fihristi", ];
 
     if (bigPages.includes(key)) {
@@ -523,14 +423,11 @@ export default function Islam_App() {
       case "yasin_suresi":
       case "tesbih":
       case "kaza_takip":
-      case "ezan_dinle":
       case "yakin_camiler":
       case "ruyet":
       case "kirk_hadis":
       case "veda_hutbesi":
       case "otuziki_farz":
-      case "dini_yayin":
-      case "kabeden_canli":
       case "esmaul_husna":
       case "islam_ilmihali":
       case "kuran_fihristi":
@@ -551,7 +448,6 @@ export default function Islam_App() {
       case "dini_sozluk":
       case "cevsan":
       case "islami_soru_cevap":
-      case "cuma_hutbeleri":
       case "namazin_turkcesi":
       case "islam_quiz":
       case "hac_umre_rehberi":
@@ -559,14 +455,12 @@ export default function Islam_App() {
       case "about":
       case "help":
         setActivePage(key);
-        toggleSidebar(isLibOpened);
         break;
       default:
         Alert.alert(
           "Yakında",
           "Allah'ın izniyle bu özellik yakında gelecek inşAllah."
         );
-        toggleSidebar(isLibOpened);
         break;
     }
   }
@@ -587,14 +481,11 @@ export default function Islam_App() {
       yasin_suresi: require("./assets/icons/iconPack/yasin.png"),
       tesbih: require("./assets/icons/iconPack/tesbih.png"),
       kaza_takip: require("./assets/icons/iconPack/kaza.png"),
-      ezan_dinle: require("./assets/icons/iconPack/ezan.png"),
       yakin_camiler: require("./assets/icons/iconPack/yakin.png"),
       ruyet: require("./assets/icons/iconPack/ruyet.png"),
       kirk_hadis: require("./assets/icons/iconPack/kirk.png"),
       veda_hutbesi: require("./assets/icons/iconPack/veda.png"),
       otuziki_farz: require("./assets/icons/iconPack/otuziki.png"),
-      dini_yayin: require("./assets/icons/iconPack/yayin.png"),
-      kabeden_canli: require("./assets/icons/iconPack/kabeLive.png"),
       esmaul_husna: require("./assets/icons/iconPack/esma.png"),
       islam_ilmihali: require("./assets/icons/iconPack/ilmihal.png"),
       kurani_kerim: require("./assets/icons/iconPack/quran.png"),
@@ -617,7 +508,6 @@ export default function Islam_App() {
       isimler_sozlugu: require("./assets/icons/iconPack/isimler.png"),
       cevsan: require("./assets/icons/iconPack/cevsan.png"),
       islami_soru_cevap: require("./assets/icons/iconPack/qna.png"),
-      cuma_hutbeleri: require("./assets/icons/iconPack/cuma.png"),
       namazin_turkcesi: require("./assets/icons/iconPack/namazTR.png"),
       islam_quiz: require("./assets/icons/iconPack/bank.png"),
       hac_umre_rehberi: require("./assets/icons/iconPack/guide.png"),
@@ -638,12 +528,6 @@ export default function Islam_App() {
       {activePage === "home" && (
         <View style={styles.overlay}>
           {/* Top bar with menu + title */}
-          <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => toggleSidebar(false)}>
-              <Image source={require("./assets/icons/iconPack/sidebarMenu.png")} size={10} style={styles.sidebarMenuIcom}/>
-            </TouchableOpacity>
-          </View>
-
           <NamazTakipPage onBack={() => setActivePage("home")} />
 
         </View>
@@ -692,7 +576,7 @@ export default function Islam_App() {
       )}
 
       {/* =======================
-          İLHAM SAYACI PAGE
+          İLHAM PAGE
           ======================= */}
       {activePage === "ilham" && (
         <IlhamPage onBack={() => setActivePage("home")} />
@@ -741,13 +625,6 @@ export default function Islam_App() {
       )}
 
       {/* =======================
-          EZAN DİNLE PAGE
-          ======================= */}
-      {activePage === "ezan_dinle" && (
-        <EzanDinlePage onBack={() => setActivePage("home")} />
-      )}
-
-      {/* =======================
           YAKIN CAMİLER PAGE
           ======================= */}
       {activePage === "yakin_camiler" && (
@@ -780,20 +657,6 @@ export default function Islam_App() {
           ======================= */}
       {activePage === "otuziki_farz" && (
         <OtuzIkiFarzPage onBack={() => setActivePage("home")} />
-      )}
-
-      {/* =======================
-          DİNİ YAYIN PAGE
-          ======================= */}
-      {activePage === "dini_yayin" && (
-        <DiniYayinPage onBack={() => setActivePage("home")} />
-      )}
-
-      {/* =======================
-          KABE ( CANLI ) PAGE
-          ======================= */}
-      {activePage === "kabeden_canli" && (
-        <KabeCanliPage onBack={() => setActivePage("home")} />
       )}
 
       {/* =======================
@@ -944,13 +807,6 @@ export default function Islam_App() {
       )}
 
       {/* =======================
-          CUMA HUTBELERİ PAGE
-          ======================= */}
-      {activePage === "cuma_hutbeleri" && (
-        <CumaHutbePage onBack={() => setActivePage("home")} />
-      )}
-
-      {/* =======================
           NAMAZIN TÜRKÇESİ PAGE
           ======================= */}
       {activePage === "namazin_turkcesi" && (
@@ -1002,21 +858,6 @@ export default function Islam_App() {
         <HelpPage onBack={() => setActivePage("home")} />
       )}
 
-      {/* Sidebar */}
-      <Animated.View style={[ styles.sidebar, { transform: [{ translateX: sidebarAnim }] }, ]} >
-        <Text style={styles.sidebarTitle}>Menü</Text>
-        <ScrollView>
-          {MENU_ITEMS.filter((item) => {
-            if (item.key === "iftarSayaci" && !isRamadanNow) return false;
-            return true;
-          }).map((item) => (
-            <TouchableOpacity key={item.key} style={styles.sidebarItem} onPress={() => { setActivePage(item.key); closeSidebar(); }} >
-              <Text style={styles.sidebarItemText}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </Animated.View>
-
       {/* =======================
           APP LIBRARY OVERLAY
           ======================= */}
@@ -1041,7 +882,7 @@ export default function Islam_App() {
                   key={item.key}
                   style={styles.appTile}
                   onPress={() => {
-                    handleMenuItemPress(item.key, true);
+                    handleMenuItemPress(item.key);
                     setIsAppLibraryOpen(false);
                   }}
                 >
@@ -1083,16 +924,6 @@ export default function Islam_App() {
 
       {/* DockBar */}
       <DockBar activePage={activePage} onNavigate={(key) => key === "appLauncher" ? toggleAppLibrary() : setActivePage(key)} />
-
-      {/* Backdrop */}
-      {isSidebarOpen && (
-        <TouchableOpacity
-          style={styles.sidebarBackdrop}
-          activeOpacity={1}
-          onPress={toggleSidebar}
-        />
-      )}
-      <View style={styles.edgeSwipeZone} {...panResponder.panHandlers} />
     </ImageBackground>
   );
 }
@@ -1110,62 +941,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
     alignItems: "stretch",
     justifyContent: "flex-start",
-  },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    marginTop: 10,
-    marginRight: 300,
-    gap: 24,
-  },
-  sidebarMenuIcom: {
-    width: 25,
-    height: 25,
-  },
-  sidebar: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: 260,
-    backgroundColor: "rgba(10, 15, 25, 0.96)",
-    paddingTop: 50,
-    paddingHorizontal: 16,
-    zIndex: 20,
-  },
-  sidebarTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 16,
-  },
-  sidebarItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.08)",
-  },
-  sidebarItemText: {
-    fontSize: 15,
-    color: "#f2f2f7",
-  },
-  sidebarBackdrop: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    zIndex: 10,
-  },
-  edgeSwipeZone: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 20,
-    zIndex: 15,
   },
   appLibraryOverlay: {
     position: "absolute",

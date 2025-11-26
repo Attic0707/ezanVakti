@@ -1,66 +1,24 @@
 import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet, ScrollView, } from "react-native";
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import ScaledText from "./ScaledText";
 import { YASIN_ARABIC } from "./Yasin/YASIN_ARABIC";
 import { YASIN_TURKISH } from "./Yasin/YASIN_TURKISH";
 import { YASIN_ROMAN } from "./Yasin/YASIN_ROMAN";
 
-const YASIN_AUDIO = require("../assets/sounds/yasin.mp3");
 
 export default function YasinPage({ onBack }) {
-  const player = useAudioPlayer(YASIN_AUDIO);
-  const status = useAudioPlayerStatus(player);
-
-  const isPlaying = !!status?.playing;
-  const isLoaded = !!status?.isLoaded;
-  const isLoadingAudio = !isLoaded;
-
-  async function onTogglePlay() {
-    try {
-      if (isPlaying) {
-        player.pause();
-        player.seekTo(0);
-      } else {
-        player.play();
-      }
-    } catch (e) {
-      console.log("Yasin audio error:", e);
-    }
-  }
-
-  function handleBack() {
-    try {
-      if (isPlaying) {
-        player.pause();
-        player.seekTo(0);
-      }
-    } catch (e) {
-      console.log("Yasin back audio stop error:", e);
-    } finally {
-      onBack();
-    }
-  }
 
   return (
     <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]} >
       {/* Back button */}
-      <TouchableOpacity onPress={handleBack} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
+      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
       {/* Header + Audio button */}
       <View style={styles.headerRow}>
         <Text style={styles.yasinTitle}>Yâsîn Suresi</Text>
-
-        <TouchableOpacity onPress={onTogglePlay} style={styles.audioButton} disabled={isLoadingAudio}  >
-          <Text style={styles.audioButtonText}> {isLoadingAudio ? "Yükleniyor..." : isPlaying ? "⏸ Durdur" : "▶ Dinle"} </Text>
-        </TouchableOpacity>
       </View>
-
-      <Text style={styles.audioHint}>
-        Arapça metni okurken Yâsîn dinlemek için dinle butonuna dokun.
-      </Text>
 
       <ScrollView style={styles.scroll}>
         <Text style={styles.yasinSectionTitle}>📖 Arapça</Text>
