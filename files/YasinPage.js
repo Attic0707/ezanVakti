@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ScrollView } from "react-native";
-import { Audio } from "expo-av";
+import React from "react";
+import { TouchableOpacity, View, Text, StyleSheet, ScrollView, } from "react-native";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import ScaledText from "./ScaledText";
 import { YASIN_ARABIC } from "./Yasin/YASIN_ARABIC";
 import { YASIN_TURKISH } from "./Yasin/YASIN_TURKISH";
@@ -9,73 +9,43 @@ import { YASIN_ROMAN } from "./Yasin/YASIN_ROMAN";
 const YASIN_AUDIO = require("../assets/sounds/yasin.mp3");
 
 export default function YasinPage({ onBack }) {
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const player = useAudioPlayer(YASIN_AUDIO);
+  const status = useAudioPlayerStatus(player);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
-    };
-  }, [sound]);
-
-  // Watch for playback end
-  useEffect(() => {
-    if (!sound) return;
-
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (!status.isLoaded) return;
-      if (status.didJustFinish) {
-        setIsPlaying(false);
-        // Optionally reset to start
-        sound.setPositionAsync(0);
-      }
-    });
-  }, [sound]);
-
-  async function loadSoundIfNeeded() {
-    if (sound) return sound;
-
-    const { sound: newSound } = await Audio.Sound.createAsync(YASIN_AUDIO);
-    setSound(newSound);
-    return newSound;
-  }
+  const isPlaying = !!status?.playing;
+  const isLoaded = !!status?.isLoaded;
+  const isLoadingAudio = !isLoaded;
 
   async function onTogglePlay() {
     try {
-      setIsLoadingAudio(true);
-      const s = await loadSoundIfNeeded();
-      const status = await s.getStatusAsync();
-
-      if (status.isLoaded && status.isPlaying) {
-        await s.pauseAsync();
-        setIsPlaying(false);
+      if (isPlaying) {
+        player.pause();
+        player.seekTo(0);
       } else {
-        await s.playAsync();
-        setIsPlaying(true);
+        player.play();
       }
     } catch (e) {
       console.log("Yasin audio error:", e);
+    }
+  }
+
+  function handleBack() {
+    try {
+      if (isPlaying) {
+        player.pause();
+        player.seekTo(0);
+      }
+    } catch (e) {
+      console.log("Yasin back audio stop error:", e);
     } finally {
-      setIsLoadingAudio(false);
+      onBack();
     }
   }
 
   return (
-    <View
-      style={[
-        styles.overlay,
-        { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 },
-      ]}
-    >
+    <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]} >
       {/* Back button */}
-      <TouchableOpacity
-        onPress={onBack}
-        style={{ alignSelf: "flex-start", marginBottom: 10 }}
-      >
+      <TouchableOpacity onPress={handleBack} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -83,18 +53,8 @@ export default function YasinPage({ onBack }) {
       <View style={styles.headerRow}>
         <Text style={styles.yasinTitle}>Yâsîn Suresi</Text>
 
-        <TouchableOpacity
-          onPress={onTogglePlay}
-          style={styles.audioButton}
-          disabled={isLoadingAudio}
-        >
-          <Text style={styles.audioButtonText}>
-            {isLoadingAudio
-              ? "Yükleniyor..."
-              : isPlaying
-              ? "⏸ Durdur"
-              : "▶ Dinle"}
-          </Text>
+        <TouchableOpacity onPress={onTogglePlay} style={styles.audioButton} disabled={isLoadingAudio}  >
+          <Text style={styles.audioButtonText}> {isLoadingAudio ? "Yükleniyor..." : isPlaying ? "⏸ Durdur" : "▶ Dinle"} </Text>
         </TouchableOpacity>
       </View>
 
@@ -112,16 +72,15 @@ export default function YasinPage({ onBack }) {
         ))}
 
         <View style={{ height: 20 }} />
-        <Text style={styles.yasinSectionTitle}> Yasin Okunuşu </Text>
+        <Text style={styles.yasinSectionTitle}>Yasin Okunuşu</Text>
+
         {YASIN_ROMAN.map((line, index) => (
           <ScaledText key={index} baseSize={14} style={styles.roman}>
             {line}
           </ScaledText>
         ))}
 
-
         <View style={{ height: 20 }} />
-
         <Text style={styles.yasinSectionTitle}>🇹🇷 Türkçe Meali</Text>
 
         {YASIN_TURKISH.map((line, index) => (

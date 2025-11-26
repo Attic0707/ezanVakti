@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Alert, } from "react-native";
-import { Audio } from "expo-av";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import ScaledText from "./ScaledText";
 
 export default function NamazSureleriPage({ onBack }) {
-  const [currentSound, setCurrentSound] = useState(null);
   const [currentPlayingKey, setCurrentPlayingKey] = useState(null);
+  const player = useAudioPlayer(null);
+  const status = useAudioPlayerStatus(player);
 
   // ---- DATA ----
   const SECTIONS = [
@@ -29,7 +30,6 @@ Mâliki yevmiddîn.
 İyyâke na‘budu ve iyyâke neste‘în.
 İhdinessırâtel müstakîm.
 Sırâtallezîne en‘amte aleyhim ğayril mağdûbi aleyhim ve leddâllîn.`,
-          // put your real path here:
           audio: require("../assets/sounds/fatiha.mp3"),
         },
         {
@@ -152,67 +152,57 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
     },
   ];
 
-  // ---- AUDIO HANDLERS ----
-  useEffect(() => {
-    // cleanup sound on unmount
-    return () => {
-      if (currentSound) {
-        currentSound.unloadAsync();
-      }
-    };
-  }, [currentSound]);
-
   async function stopCurrentSound() {
     try {
-      if (currentSound) {
-        await currentSound.stopAsync();
-        await currentSound.unloadAsync();
-      }
+      if (!player) return;
+
+      player.pause();
+      await player.seekTo(0);
     } catch (e) {
-      // ignore
+      console.log("stopCurrentSound error", e);
     } finally {
-      setCurrentSound(null);
       setCurrentPlayingKey(null);
     }
   }
 
   async function handlePlayPress(item) {
     try {
-      // If this item is already playing -> stop it
-      if (currentPlayingKey === item.key) {
+      if (currentPlayingKey === item.key && status?.playing) {
         await stopCurrentSound();
         return;
       }
-
-      // Stop any previous sound
-      await stopCurrentSound();
 
       if (!item.audio) {
         Alert.alert("Ses bulunamadı", "Bu okuma için ses dosyası eklenmemiş.");
         return;
       }
 
-      const { sound } = await Audio.Sound.createAsync(item.audio);
-      setCurrentSound(sound);
+      await stopCurrentSound();
+
+      player.replace(item.audio);
+
       setCurrentPlayingKey(item.key);
-
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          stopCurrentSound();
-        }
-      });
-
-      await sound.playAsync();
+      player.play();
     } catch (e) {
       console.log("Audio play error:", e);
       Alert.alert("Hata", "Ses oynatılırken bir sorun oluştu.");
     }
   }
 
+  useEffect(() => {
+    return () => {
+      try {
+        player.remove();
+      } catch (e) {
+        console.log("player remove error", e);
+      }
+    };
+  }, [player]);
+
   return (
     <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]} >
       {/* Back button */}
-      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
+      <TouchableOpacity onPress={async () => { await stopCurrentSound(); onBack(); }} style={{ alignSelf: "flex-start", marginBottom: 10 }}  >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -224,7 +214,9 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
             <Text style={styles.sectionTitle}>{section.title}</Text>
 
             {section.items.map((item) => {
-              const isPlaying = currentPlayingKey === item.key;
+              const isPlaying =
+                currentPlayingKey === item.key && status?.playing;
+
               return (
                 <View key={item.key} style={styles.card}>
                   <View style={styles.cardHeaderRow}>
@@ -232,16 +224,15 @@ ve lil-mü’minîne yevme yekûmul hisâb.`,
                       {item.name}
                     </ScaledText>
 
-                    <TouchableOpacity
-                      onPress={() => handlePlayPress(item)} style={[ styles.audioButton, isPlaying && styles.audioButtonActive, ]} >
+                    <TouchableOpacity onPress={() => handlePlayPress(item)} style={[ styles.audioButton, isPlaying && styles.audioButtonActive, ]} >
                       <Text style={[ styles.audioButtonText, isPlaying && styles.audioButtonTextActive, ]} >
                         {isPlaying ? "⏸ Durdur" : "▶ Dinle"}
                       </Text>
                     </TouchableOpacity>
                   </View>
 
-                  <Text style={styles.surahArabic}>{item.arabic}</Text>
-                  <Text style={styles.romanText}>{item.roman}</Text>
+                  <ScaledText baseSize={20} style={styles.surahArabic}>{item.arabic}</ScaledText>
+                  <ScaledText baseSize={20} style={styles.romanText}>{item.roman}</ScaledText>
                 </View>
               );
             })}
