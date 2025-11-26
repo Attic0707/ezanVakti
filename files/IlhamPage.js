@@ -10,6 +10,11 @@ const STORY_PICS = [
   require("../assets/images/ilham_pics/ilham3.jpg"),
   require("../assets/images/ilham_pics/ilham4.jpg"),
   require("../assets/images/ilham_pics/ilham5.jpg"),
+  require("../assets/images/ilham_pics/ilham6.jpg"),
+  require("../assets/images/ilham_pics/ilham7.jpg"),
+  require("../assets/images/ilham_pics/ilham8.jpg"),
+  require("../assets/images/ilham_pics/ilham9.jpg"),
+  require("../assets/images/ilham_pics/ilham10.jpg"),
 ];
 
 const STORY_ITEMS = [

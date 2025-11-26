@@ -1,7 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Alert, Switch, Linking, Platform, Share } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Switch,
+  Linking,
+  Platform,
+  Share,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as StoreReview from "expo-store-review";
+
+// TODO: gerçek linkleriyle değiştir
+const APP_STORE_URL =
+  "https://apps.apple.com/app/idYOUR_IOS_APP_ID_HERE?action=write-review";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=YOUR_ANDROID_PACKAGE_NAME";
 
 export default function SettingsPage({ onBack, onSettingsChanged }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -14,15 +30,19 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
 
   useEffect(() => {
     const load = async () => {
-      const s = await AsyncStorage.getItem("settings");
-      if (s) {
-        const parsed = JSON.parse(s);
-        setSoundEnabled(parsed.soundEnabled ?? true);
-        setVibrationEnabled(parsed.vibrationEnabled ?? true);
-        setDarkTheme(parsed.darkTheme ?? true);
-        setNotificationsEnabled(parsed.notificationsEnabled ?? true);
-        setBackgroundChange(parsed.backgroundChanged ?? true);
-        setAdsEnabled(parsed.adsEnabled ?? true);
+      try {
+        const s = await AsyncStorage.getItem("settings");
+        if (s) {
+          const parsed = JSON.parse(s);
+          setSoundEnabled(parsed.soundEnabled ?? true);
+          setVibrationEnabled(parsed.vibrationEnabled ?? true);
+          setDarkTheme(parsed.darkTheme ?? true);
+          setNotificationsEnabled(parsed.notificationsEnabled ?? true);
+          setBackgroundChange(parsed.backgroundChanged ?? false);
+          setAdsEnabled(parsed.adsEnabled ?? true);
+        }
+      } catch (e) {
+        console.log("Settings load error:", e);
       }
     };
     load();
@@ -42,8 +62,13 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
       onSettingsChanged(data);
     }
 
-    await AsyncStorage.setItem("settings", JSON.stringify(data));
-    Alert.alert("Kaydedildi", "Ayarlar başarıyla kaydedildi.");
+    try {
+      await AsyncStorage.setItem("settings", JSON.stringify(data));
+      Alert.alert("Kaydedildi", "Ayarlar başarıyla kaydedildi.");
+    } catch (e) {
+      console.log("Settings save error:", e);
+      Alert.alert("Hata", "Ayarlar kaydedilirken bir hata oluştu.");
+    }
   }
 
   function triggerBackgroundChange() {
@@ -53,8 +78,9 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
     setTimeout(() => setCooldown(false), 2000);
 
     const newVal = true;
+    setBackgroundChange(newVal); // istersen bunu bırak, istersen tamamen kaldır
 
-    if (onSettingsChanged) { 
+    if (onSettingsChanged) {
       onSettingsChanged({
         soundEnabled,
         vibrationEnabled,
@@ -68,24 +94,22 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
 
   async function leaveReview() {
     try {
-      if(await StoreReview.hasAction()) {
+      if (await StoreReview.hasAction()) {
         await StoreReview.requestReview();
         return;
       }
 
-      const appStoreUrl = "https://github.com/Attic0707/Islam-App";
-      // const playStoreUrl = "market://details?id=your.package.name";
+      const url = Platform.select({
+        ios: APP_STORE_URL,
+        android: PLAY_STORE_URL,
+      });
 
-      const url = Platform.select( {ios: appStoreUrl, android: playStoreUrl });
-
-      if(url) {
+      if (url) {
         Linking.openURL(url);
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log("Review error:", e);
     }
-    console.log('YORUM YAP');
   }
 
   async function shareTheApp() {
@@ -100,16 +124,26 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
   }
 
   function goPremium() {
-    console.log('GO PREMIUM');
+    console.log("GO PREMIUM");
+    Alert.alert("Yakında", "İslam Yolu PRO çok yakında inşallah.");
   }
 
   function updateTheApp() {
-    console.log('UPDATE');
+    console.log("UPDATE");
+    Alert.alert("Güncel", "Uygulama için yeni bir güncelleme bulunamadı.");
   }
 
   return (
-    <View style={[styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }]}>
-      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
+    <View
+      style={[
+        styles.overlay,
+        { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 },
+      ]}
+    >
+      <TouchableOpacity
+        onPress={onBack}
+        style={{ alignSelf: "flex-start", marginBottom: 10 }}
+      >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -127,38 +161,59 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
 
       <View style={styles.settingRow}>
         <Text style={styles.settingLabel}>Ezan Bildirimleri</Text>
-        <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
+        <Switch
+          value={notificationsEnabled}
+          onValueChange={setNotificationsEnabled}
+        />
       </View>
 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={triggerBackgroundChange} disabled={cooldown}>
-          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}>Arka Plan Değiştir</Text>
+          <Text
+            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
+          >
+            Arka Plan Değiştir
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={leaveReview} disabled={cooldown}>
-          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}> Uygulamaya paun ver </Text>
+          <Text
+            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
+          >
+            Uygulamaya puan ver
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={shareTheApp} disabled={cooldown}>
-          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}> İslam Yolu'nu Paylaş </Text>
+          <Text
+            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
+          >
+            İslam Yolu'nu Paylaş
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/*
+      {/* 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={goPremium} disabled={cooldown} style={styles.button}>
-          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}> İslam Yolu PRO'ya geç </Text>
+          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}>
+            İslam Yolu PRO'ya geç
+          </Text>
         </TouchableOpacity>
       </View>
       */}
 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={updateTheApp} disabled={cooldown}>
-          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}> Güncellemeleri denetle </Text>
+          <Text
+            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
+          >
+            Güncellemeleri denetle
+          </Text>
         </TouchableOpacity>
       </View>
 
