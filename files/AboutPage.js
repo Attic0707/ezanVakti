@@ -86,7 +86,7 @@ export default function AboutPage({ onBack }) {
           </ScaledText>
 
           <TouchableOpacity
-            onPress={() => Linking.openURL("mailto:sametatiik7@gmail.com")}
+            onPress={() => Linking.openURL("mailto:sametatik7@gmail.com")}
           >
             <ScaledText
               baseSize={14}

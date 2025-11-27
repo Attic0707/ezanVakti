@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Alert, Switch, Linking, Platform, Share, } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, Alert, Switch, Share, } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import * as StoreReview from "expo-store-review";
-
-const APP_STORE_URL = "https://apps.apple.com/app/idYOUR_IOS_APP_ID_HERE?action=write-review";
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=YOUR_ANDROID_PACKAGE_NAME";
 
 export default function SettingsPage({ onBack, onSettingsChanged }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -65,7 +61,7 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
     setTimeout(() => setCooldown(false), 2000);
 
     const newVal = true;
-    setBackgroundChange(newVal); // istersen bunu bırak, istersen tamamen kaldır
+    setBackgroundChange(newVal);
 
     if (onSettingsChanged) {
       onSettingsChanged({
@@ -76,26 +72,6 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
         backgroundChanged: newVal,
         adsEnabled,
       });
-    }
-  }
-
-  async function leaveReview() {
-    try {
-      if (await StoreReview.hasAction()) {
-        await StoreReview.requestReview();
-        return;
-      }
-
-      const url = Platform.select({
-        ios: APP_STORE_URL,
-        android: PLAY_STORE_URL,
-      });
-
-      if (url) {
-        Linking.openURL(url);
-      }
-    } catch (e) {
-      console.log("Review error:", e);
     }
   }
 
@@ -110,22 +86,9 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
     }
   }
 
-  function updateTheApp() {
-    console.log("UPDATE");
-    Alert.alert("Güncel", "Uygulama için yeni bir güncelleme bulunamadı.");
-  }
-
   return (
-    <View
-      style={[
-        styles.overlay,
-        { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 },
-      ]}
-    >
-      <TouchableOpacity
-        onPress={onBack}
-        style={{ alignSelf: "flex-start", marginBottom: 10 }}
-      >
+    <View style={[ styles.overlay, { justifyContent: "flex-start", paddingTop: 60, paddingHorizontal: 20 }, ]}  >
+      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -151,50 +114,19 @@ export default function SettingsPage({ onBack, onSettingsChanged }) {
 
       <View style={styles.settingRow}>
         <TouchableOpacity onPress={triggerBackgroundChange} disabled={cooldown}>
-          <Text
-            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
-          >
+          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}  >
             Arka Plan Değiştir
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.settingRow}>
-        <TouchableOpacity onPress={leaveReview} disabled={cooldown}>
-          <Text
-            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
-          >
-            Uygulamaya puan ver
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.settingRow}>
         <TouchableOpacity onPress={shareTheApp} disabled={cooldown}>
-          <Text
-            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
-          >
+          <Text style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}  >
             İslam Yolu'nu Paylaş
           </Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.settingRow}>
-        <TouchableOpacity onPress={updateTheApp} disabled={cooldown}>
-          <Text
-            style={[styles.settingLabel, cooldown && { opacity: 0.5 }]}
-          >
-            Güncellemeleri denetle
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 
-      <View style={styles.settingRow}>
-        <Text style={styles.settingLabel}>Reklamları göster</Text>
-        <Switch value={adsEnabled} onValueChange={setAdsEnabled} />
-      </View>
-      */}
 
       <TouchableOpacity onPress={save} style={styles.settingsSaveBtn}>
         <Text style={styles.settingsSaveText}>Kaydet</Text>

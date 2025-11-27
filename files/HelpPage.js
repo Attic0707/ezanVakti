@@ -18,9 +18,9 @@ export default function HelpPage({ onBack }) {
             Sorular, öneriler veya hata bildirimleri için bizimle iletişime geçebilirsiniz.
           </ScaledText>
 
-          <TouchableOpacity onPress={() => Linking.openURL("mailto:support@namazvakti.app")}>
+          <TouchableOpacity onPress={() => Linking.openURL("mailto:sametatiik7@gmail.com")}>
             <ScaledText baseSize={15} style={{ color: "#8ecbff", textDecorationLine: "underline" }}>
-              E-posta: support@namazvakti.app
+              E-posta: sametatiik7@gmail.com
             </ScaledText>
           </TouchableOpacity>
 

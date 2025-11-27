@@ -1,24 +1,7 @@
-import React, { useState, useRef } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Modal, Image, Animated, } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, ScrollView } from "react-native";
 import ScaledText from "./ScaledText";
 
-// 🔹 Placeholder — you will replace these with actual PNG paths later
-const ABDEST_IMAGES = {
-  3: [require("../assets/images/abdest/step3_1.png")],
-  4: [require("../assets/images/abdest/step3_1.png")],
-  5: [require("../assets/images/abdest/step3_1.png")],
-  6: [require("../assets/images/abdest/step3_1.png")], 
-  7: [require("../assets/images/abdest/step3_1.png")],
-  8: [require("../assets/images/abdest/step3_1.png")],
-  9: [require("../assets/images/abdest/step3_1.png")],
-  10: [require("../assets/images/abdest/step3_1.png")],
-};
-
 export default function AbdestPage({ onBack }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [activeStep, setActiveStep] = useState(null);
-
-  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const steps = [
     {
@@ -75,28 +58,11 @@ export default function AbdestPage({ onBack }) {
     },
   ];
 
-  function openStepModal(index) {
-    setActiveStep(index);
-    setModalVisible(true);
-  }
-
-  function playAnimation() {
-    fadeAnim.setValue(0.2);
-
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 400,
-      useNativeDriver: true,
-    }).start();
-  }
 
   return (
     <View style={[styles.overlay, { paddingTop: 60, paddingHorizontal: 20 }]}>
       {/* Back button */}
-      <TouchableOpacity
-        onPress={onBack}
-        style={{ alignSelf: "flex-start", marginBottom: 10 }}
-      >
+      <TouchableOpacity onPress={onBack} style={{ alignSelf: "flex-start", marginBottom: 10 }} >
         <Text style={{ color: "#ffffff", fontSize: 18 }}>← </Text>
       </TouchableOpacity>
 
@@ -107,65 +73,17 @@ export default function AbdestPage({ onBack }) {
 
       <ScrollView style={{ marginTop: 10, width: "100%" }}>
         {steps.map((step, idx) => (
-          <TouchableOpacity
-            key={step.title}
-            style={styles.guideCard}
-            onPress={() => (step.hasAnimation ? openStepModal(idx + 1) : null)}
-            activeOpacity={step.hasAnimation ? 0.7 : 1}
-          >
+          <View key={idx} style={styles.guideCard}>
             <ScaledText baseSize={14} style={styles.guideStepTitle}>
               {step.title}
             </ScaledText>
             <ScaledText baseSize={14} style={styles.guideStepText}>
               {step.text}
             </ScaledText>
-
-            {step.hasAnimation && (
-              <Text style={styles.tapHint}>▶ Animasyonu görmek için dokun</Text>
-            )}
-          </TouchableOpacity>
+          </View>
         ))}
-
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* ===========================
-            MODAL
-          =========================== */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {steps[activeStep - 1]?.title}
-            </Text>
-
-            {/* Image (placeholder, glowing animation) */}
-            <Animated.Image
-              source={
-                ABDEST_IMAGES[activeStep]?.[0] ??
-                require("../assets/images/abdest/step3_1.png")
-              }
-              style={[styles.modalImage, { opacity: fadeAnim }]} 
-              resizeMode="contain"
-            />
-
-            <TouchableOpacity
-              onPress={playAnimation}
-              style={styles.playBtn}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.playBtnText}>▶ Animasyonu Oynat</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeBtn}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeBtnText}>Kapat</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -202,55 +120,5 @@ const styles = StyleSheet.create({
   guideStepText: {
     fontSize: 14,
     color: "#f2f2f7",
-  },
-  tapHint: {
-    marginTop: 8,
-    fontSize: 12,
-    color: "#bbb",
-  },
-
-  /* MODAL */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.8)",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderRadius: 14,
-    padding: 20,
-    alignItems: "center",
-  },
-  modalTitle: {
-    color: "#ffdd55",
-    fontSize: 18,
-    marginBottom: 14,
-    fontWeight: "600",
-  },
-  modalImage: {
-    width: 240,
-    height: 240,
-    marginBottom: 20,
-  },
-  playBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-    marginBottom: 20,
-  },
-  playBtnText: {
-    color: "#fff",
-  },
-  closeBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  closeBtnText: {
-    color: "#ffdddd",
-    fontSize: 15,
   },
 });

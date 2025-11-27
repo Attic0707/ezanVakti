@@ -167,7 +167,7 @@ export default function Islam_App() {
   const [isAppLibraryOpen, setIsAppLibraryOpen] = useState(false);
   const [backgroundSource, setBackgroundSource] = useState(BACKGROUNDS[0]);
   const [isRamadanNow, setIsRamadanNow] = useState(false);
-  const { maybeShowInterstitial } = useInterstitialAds(settings.adsEnabled);
+  const { maybeShowInterstitial } = useInterstitialAds(true);
 
   // check if ramazan
   useEffect(() => {
@@ -358,7 +358,7 @@ export default function Islam_App() {
 
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: `${t.name} ezanı 🕋`,
+            title: `${t.name} ezanı 📢`,
             body: `${t.name} vakti geldi. Allah kabul etsin.`,
           },
           trigger: {
